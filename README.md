@@ -36,13 +36,11 @@
 
 ## 🛠️ Tech Stack
 
-* **Frontend:** [Angular](https://angular.dev/) (Standalone Components, Signals, Reactive Forms)
-* **Language:** [TypeScript](https://www.typescriptlang.org/)
-* **Backend & Database:** [Supabase](https://supabase.com/)
+* **Frontend:** [Flutter](https://flutter.dev/) (Dart, Material 3)
+* **Backend & Database:** [Supabase](https://supabase.com/) *(planned)*
   * **Database:** PostgreSQL with Row Level Security (RLS)
   * **Auth:** Supabase Auth (Email / Password or Magic Links)
   * **Storage:** Supabase Storage (for recipe photos)
-* **Styling:** Tailwind CSS / SCSS
 
 ---
 
@@ -51,12 +49,8 @@
 ### Prerequisites
 
 Ensure you have the following installed:
-* [Node.js](https://nodejs.org/) (v18.x or v20.x recommended)
-* [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
-* [Angular CLI](https://angular.dev/tools/cli):
-  ```bash
-  npm install -g @angular/cli
-  ```
+* [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.44.x or newer)
+* A target device: Chrome/Edge (web), Windows desktop, or a mobile emulator
 
 ### Installation
 
@@ -68,49 +62,35 @@ Ensure you have the following installed:
 
 2. **Install dependencies:**
    ```bash
-   npm install
+   flutter pub get
    ```
 
-3. **Configure Environment Variables:**
-   Create an environment configuration file in `src/environments/environment.development.ts`:
-   ```typescript
-   export const environment = {
-     production: false,
-     supabaseUrl: 'YOUR_SUPABASE_PROJECT_URL',
-     supabaseKey: 'YOUR_SUPABASE_ANON_KEY'
-   };
-   ```
-
-4. **Set Up Supabase Schema:**
-   Run your SQL scripts within your Supabase project's SQL Editor to set up:
-   * `recipes` (id, title, instructions, prep_time, tags, created_by)
-   * `ingredients` (id, name, aisle_category)
-   * `recipe_ingredients` (recipe_id, ingredient_id, amount, unit)
-   * `weekly_plans` (id, user_id, date, recipe_id)
-
-5. **Run the Development Server:**
+3. **Run the app:**
    ```bash
-   ng serve
+   flutter run -d chrome
    ```
-   Navigate to `http://localhost:4200/` in your browser.
+   Or target Windows desktop with `flutter run -d windows`.
+
+4. **Run tests:**
+   ```bash
+   flutter test
+   ```
+
+Supabase configuration (project URL, anon key, and schema) will be documented here once the backend is wired up.
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-src/
-├── app/
-│   ├── core/              # Supabase client service, auth guards, interceptors
-│   ├── features/
-│   │   ├── planner/       # Weekly schedule calendar component & state
-│   │   ├── wheel/         # Spin-the-wheel randomized selector
-│   │   ├── recipes/       # Recipe catalog, creation forms, detail views
-│   │   └── grocery-list/  # Weekly aggregated grocery checklist
-│   ├── shared/            # Reusable UI components, pipes, directives
-│   └── app.config.ts      # Application config & routing
-├── environments/          # Supabase credentials & environment configs
-└── styles.scss            # Global styles and design tokens
+lib/
+├── main.dart              # App entry point and MaterialApp setup
+├── dinner_wheel_page.dart # Spin-the-wheel screen: food list, form, layout
+├── wheel_painter.dart      # CustomPainter for wheel slices, hub, and labels
+└── wheel_math.dart         # Pure rotation/label geometry (unit tested)
+test/
+├── widget_test.dart        # Widget tests for add/remove/spin behavior
+└── wheel_math_test.dart    # Unit tests for wheel geometry
 ```
 
 ---
