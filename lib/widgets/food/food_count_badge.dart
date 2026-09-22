@@ -1,0 +1,21 @@
+import 'package:flutter/material.dart';
+
+import '../../theme/app_theme.dart';
+
+/// Circular badge showing how many entries are currently on the wheel.
+class FoodCountBadge extends StatelessWidget {
+  const FoodCountBadge({super.key, required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 42,
+      height: 42,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.line)),
+      child: Text('$count', style: const TextStyle(fontWeight: FontWeight.w800)),
+    );
+  }
+}

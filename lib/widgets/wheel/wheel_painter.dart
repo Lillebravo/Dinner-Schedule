@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'wheel_math.dart';
+import '../../utils/wheel_math.dart';
 
 /// Paints the wheel's colored slices, center hub, and per-slice labels.
 ///

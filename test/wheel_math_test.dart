@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:dishdash/wheel_math.dart';
+import 'package:dishdash/utils/wheel_math.dart';
 
 void main() {
   group('WheelMath', () {
