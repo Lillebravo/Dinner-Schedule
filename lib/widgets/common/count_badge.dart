@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_theme.dart';
 
-/// Circular badge showing how many entries are currently on the wheel.
-class FoodCountBadge extends StatelessWidget {
-  const FoodCountBadge({super.key, required this.count});
+/// Circular badge showing how many entries are currently on a list or wheel.
+class CountBadge extends StatelessWidget {
+  const CountBadge({super.key, required this.count});
 
   final int count;
 

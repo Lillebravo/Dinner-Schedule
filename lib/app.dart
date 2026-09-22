@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'pages/dinner_wheel_page.dart';
+import 'pages/main_shell.dart';
 import 'theme/app_theme.dart';
 
 class DishDashApp extends StatelessWidget {
@@ -12,7 +12,7 @@ class DishDashApp extends StatelessWidget {
       title: 'DishDash',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const DinnerWheelPage(),
+      home: const MainShell(),
     );
   }
 }

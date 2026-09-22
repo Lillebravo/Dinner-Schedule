@@ -84,14 +84,32 @@ Supabase configuration (project URL, anon key, and schema) will be documented he
 
 ```text
 lib/
-├── main.dart              # App entry point and MaterialApp setup
-├── dinner_wheel_page.dart # Spin-the-wheel screen: food list, form, layout
-├── wheel_painter.dart      # CustomPainter for wheel slices, hub, and labels
-└── wheel_math.dart         # Pure rotation/label geometry (unit tested)
+├── main.dart                     # Entry point (exports app.dart)
+├── app.dart                      # MaterialApp + theme setup
+├── models/                       # Food, Meal - plain data classes
+├── controllers/                  # FoodListController, MealListController, WheelSpinController
+├── theme/                        # AppColors + AppTheme
+├── utils/                        # wheel_math.dart - pure rotation/label geometry (unit tested)
+├── widgets/
+│   ├── common/                   # Reused across pages: EyebrowLabel, PrimaryButton, SectionIntro, PanelHeader, CountBadge, EntryInputRow
+│   ├── wheel/                    # WheelPainter, WheelDisplay, WheelStage, SpinResultLabel
+│   ├── food/                     # FoodPanel, FoodListTile (eating-out wheel entries)
+│   ├── meal/                     # MealTile, MealSortControl, MealEditSheet (home meals)
+│   └── navigation/               # AppBottomNavBar
+└── pages/
+    ├── main_shell.dart           # Bottom-nav shell holding all 5 sections
+    ├── eating_out_wheel_page.dart
+    ├── home_wheel_page.dart
+    ├── home_meals_list_page.dart # Add/favorite/sort/reorder + recipe details
+    └── placeholder_page.dart     # "Coming soon" (shopping list, meal planning)
 test/
-├── widget_test.dart        # Widget tests for add/remove/spin behavior
-└── wheel_math_test.dart    # Unit tests for wheel geometry
+├── widget_test.dart              # Navigation + wheel + meals list widget tests
+├── meal_list_controller_test.dart# Unit tests for meal list logic (sort, favorite, reorder)
+└── wheel_math_test.dart          # Unit tests for wheel geometry
 ```
+
+The bottom navigation bar has five sections: **Eat Out** (a wheel for restaurants/takeout), **Meals** (manage your home-cooked recipes), **Spin** (the home-cooking wheel, in the middle), **Shopping** and **Plan** (placeholders for now).
+
 
 ---
 

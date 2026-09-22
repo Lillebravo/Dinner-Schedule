@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../../controllers/food_list_controller.dart';
-import '../common/primary_button.dart';
+import 'primary_button.dart';
 
-/// Text field + add button for entering a new wheel entry.
-class FoodInputRow extends StatelessWidget {
-  const FoodInputRow({super.key, required this.controller, required this.onSubmit});
+/// Text field + submit button for adding a new named entry (a food, a meal, ...).
+class EntryInputRow extends StatelessWidget {
+  const EntryInputRow({
+    super.key,
+    required this.controller,
+    required this.onSubmit,
+    this.hintText = 'Add an entry',
+    this.maxLength = 40,
+  });
 
   final TextEditingController controller;
   final VoidCallback onSubmit;
+  final String hintText;
+  final int maxLength;
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +26,12 @@ class FoodInputRow extends StatelessWidget {
           child: TextField(
             key: const Key('food-input'),
             controller: controller,
-            maxLength: FoodListController.maxNameLength,
-            decoration: const InputDecoration(
-              hintText: 'Try homemade pizza',
+            maxLength: maxLength,
+            decoration: InputDecoration(
+              hintText: hintText,
               counterText: '',
               isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.zero),
+              border: const OutlineInputBorder(borderRadius: BorderRadius.zero),
             ),
             onSubmitted: (_) => onSubmit(),
           ),
