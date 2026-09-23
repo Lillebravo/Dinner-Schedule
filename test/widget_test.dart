@@ -142,8 +142,12 @@ void main() {
       await tester.pumpWidget(const DishDashApp());
       await _goTo(tester, 'nav-home-list');
 
-      await tester.tap(inTab(find.byKey(const Key('sort-nameAZ'))));
-      await tester.pump();
+      await tester.tap(inTab(find.byKey(const Key('sort-menu-button'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('sort-option-name')));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
 
       final chickenY = tester.getTopLeft(inTab(find.text('Chicken Stir-fry'))).dy;
       final veggieY = tester.getTopLeft(inTab(find.text('Veggie Curry'))).dy;
@@ -161,8 +165,12 @@ void main() {
       await tester.tap(find.byKey(const Key('save-meal-button')));
       await tester.pumpAndSettle();
 
-      await tester.tap(inTab(find.byKey(const Key('filter-vegetarian'))));
-      await tester.pump();
+      await tester.tap(inTab(find.byKey(const Key('filter-menu-button'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('filter-vegetarian')));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
 
       expect(inTab(find.text('Veggie Curry')), findsOneWidget);
       expect(inTab(find.text('Tacos al Pastor')), findsNothing);
@@ -173,8 +181,12 @@ void main() {
       await tester.pumpWidget(const DishDashApp());
       await _goTo(tester, 'nav-home-list');
 
-      await tester.tap(inTab(find.byKey(const Key('filter-vegetarian'))));
-      await tester.pump();
+      await tester.tap(inTab(find.byKey(const Key('filter-menu-button'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('filter-vegetarian')));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
 
       expect(inTab(find.byKey(const Key('no-meals-match'))), findsOneWidget);
     });

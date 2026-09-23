@@ -3,12 +3,20 @@ import 'package:flutter/foundation.dart';
 import '../models/meal.dart';
 
 /// The available ways [MealListController.meals] can be ordered.
-enum MealSortOption { custom, nameAZ, nameZA, cookTimeAsc, favoritesFirst }
+enum MealSortOption { custom, nameAZ, nameZA, cookTimeAsc, cookTimeDesc, favoritesFirst }
+
+/// A sortable criterion in the UI. Each maps to a pair of [MealSortOption]s
+/// (ascending/descending) that a single button cycles through, except
+/// [favorites] which only has one direction.
+enum MealSortCriterion { name, cookTime, favorites }
 
 /// A "smart filter" that constrains which meals show up in the list and wheel.
 enum MealFilter {
   quick('Quick (<30m)'),
   vegetarian('Vegetarian'),
+  vegan('Vegan'),
+  pescatarian('Pescatarian'),
+  glutenFree('Gluten-Free'),
   comfortFood('Comfort Food'),
   pantryFriendly('Pantry Friendly');
 
@@ -21,6 +29,12 @@ enum MealFilter {
         return meal.isQuick;
       case MealFilter.vegetarian:
         return meal.tags.contains(MealTag.vegetarian);
+      case MealFilter.vegan:
+        return meal.tags.contains(MealTag.vegan);
+      case MealFilter.pescatarian:
+        return meal.tags.contains(MealTag.pescatarian);
+      case MealFilter.glutenFree:
+        return meal.tags.contains(MealTag.glutenFree);
       case MealFilter.comfortFood:
         return meal.tags.contains(MealTag.comfortFood);
       case MealFilter.pantryFriendly:
@@ -48,6 +62,17 @@ class MealListController extends ChangeNotifier {
   Set<MealFilter> get activeFilters => Set.unmodifiable(_activeFilters);
   bool get isAtMinimum => _meals.length <= minMeals;
 
+  /// The sort criterion currently in effect, or null when unsorted (custom order).
+  MealSortCriterion? get activeSortCriterion => switch (_sortOption) {
+        MealSortOption.nameAZ || MealSortOption.nameZA => MealSortCriterion.name,
+        MealSortOption.cookTimeAsc || MealSortOption.cookTimeDesc => MealSortCriterion.cookTime,
+        MealSortOption.favoritesFirst => MealSortCriterion.favorites,
+        MealSortOption.custom => null,
+      };
+
+  /// Whether the active sort criterion is currently descending.
+  bool get isSortDescending => _sortOption == MealSortOption.nameZA || _sortOption == MealSortOption.cookTimeDesc;
+
   /// Meals matching the active filters, in the currently selected sort order. The
   /// manual/custom order is kept intact underneath, so switching back to "custom"
   /// restores the last ranking.
@@ -64,6 +89,8 @@ class MealListController extends ChangeNotifier {
         result.sort((a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
       case MealSortOption.cookTimeAsc:
         result.sort((a, b) => (a.cookTimeMinutes ?? 1 << 30).compareTo(b.cookTimeMinutes ?? 1 << 30));
+      case MealSortOption.cookTimeDesc:
+        result.sort((a, b) => (b.cookTimeMinutes ?? -(1 << 30)).compareTo(a.cookTimeMinutes ?? -(1 << 30)));
       case MealSortOption.favoritesFirst:
         result.sort((a, b) => (b.isFavorite ? 1 : 0).compareTo(a.isFavorite ? 1 : 0));
       case MealSortOption.custom:
@@ -74,6 +101,29 @@ class MealListController extends ChangeNotifier {
 
   void setSortOption(MealSortOption option) {
     _sortOption = option;
+    notifyListeners();
+  }
+
+  /// Cycles [criterion] through ascending → descending → no sort (custom order).
+  /// [MealSortCriterion.favorites] only has one direction, so it just toggles on/off.
+  /// Selecting a different criterion than the one currently active starts it fresh (ascending).
+  void cycleSort(MealSortCriterion criterion) {
+    switch (criterion) {
+      case MealSortCriterion.name:
+        _sortOption = switch (_sortOption) {
+          MealSortOption.nameAZ => MealSortOption.nameZA,
+          MealSortOption.nameZA => MealSortOption.custom,
+          _ => MealSortOption.nameAZ,
+        };
+      case MealSortCriterion.cookTime:
+        _sortOption = switch (_sortOption) {
+          MealSortOption.cookTimeAsc => MealSortOption.cookTimeDesc,
+          MealSortOption.cookTimeDesc => MealSortOption.custom,
+          _ => MealSortOption.cookTimeAsc,
+        };
+      case MealSortCriterion.favorites:
+        _sortOption = _sortOption == MealSortOption.favoritesFirst ? MealSortOption.custom : MealSortOption.favoritesFirst;
+    }
     notifyListeners();
   }
 

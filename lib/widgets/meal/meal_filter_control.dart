@@ -1,29 +1,57 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/meal_list_controller.dart';
+import '../../theme/app_theme.dart';
 
-/// Multi-select chips constraining the meals list and wheel by tag, per the
-/// app's "smart filters" (Quick, Vegetarian, Comfort Food, Pantry Friendly).
+/// A single icon button that opens a sheet of smart filters (Quick, Vegetarian,
+/// Vegan, Pescatarian, Gluten-Free, Comfort Food, Pantry Friendly).
 class MealFilterControl extends StatelessWidget {
-  const MealFilterControl({super.key, required this.active, required this.onToggle});
+  const MealFilterControl({super.key, required this.controller});
 
-  final Set<MealFilter> active;
-  final ValueChanged<MealFilter> onToggle;
+  final MealListController controller;
+
+  void _openSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => AnimatedBuilder(
+        animation: controller,
+        builder: (context, _) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Filter by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 13)),
+                ),
+              ),
+              for (final filter in MealFilter.values)
+                CheckboxListTile(
+                  key: Key('filter-${filter.name}'),
+                  title: Text(filter.label),
+                  value: controller.activeFilters.contains(filter),
+                  onChanged: (_) => controller.toggleFilter(filter),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final filter in MealFilter.values)
-          FilterChip(
-            key: Key('filter-${filter.name}'),
-            label: Text(filter.label),
-            selected: active.contains(filter),
-            onSelected: (_) => onToggle(filter),
-          ),
-      ],
+    final active = controller.activeFilters.isNotEmpty;
+    return IconButton(
+      key: const Key('filter-menu-button'),
+      tooltip: 'Filter',
+      onPressed: () => _openSheet(context),
+      icon: Badge(
+        isLabelVisible: active,
+        label: Text('${controller.activeFilters.length}'),
+        child: const Icon(Icons.filter_alt_outlined),
+      ),
     );
   }
 }

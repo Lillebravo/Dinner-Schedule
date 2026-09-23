@@ -93,6 +93,53 @@ void main() {
       expect(controller.meals.map((m) => m.name), ['Pasta', 'Tacos', 'Curry']);
     });
 
+    test('cycleSort cycles name and cook time through ascending, descending, then no sort', () {
+      final controller = MealListController(['Tacos', 'Pasta']);
+
+      controller.cycleSort(MealSortCriterion.name);
+      expect(controller.sortOption, MealSortOption.nameAZ);
+      expect(controller.activeSortCriterion, MealSortCriterion.name);
+      expect(controller.isSortDescending, isFalse);
+
+      controller.cycleSort(MealSortCriterion.name);
+      expect(controller.sortOption, MealSortOption.nameZA);
+      expect(controller.isSortDescending, isTrue);
+
+      controller.cycleSort(MealSortCriterion.name);
+      expect(controller.sortOption, MealSortOption.custom);
+      expect(controller.activeSortCriterion, isNull);
+
+      controller.cycleSort(MealSortCriterion.cookTime);
+      expect(controller.sortOption, MealSortOption.cookTimeAsc);
+
+      controller.cycleSort(MealSortCriterion.cookTime);
+      expect(controller.sortOption, MealSortOption.cookTimeDesc);
+
+      controller.cycleSort(MealSortCriterion.cookTime);
+      expect(controller.sortOption, MealSortOption.custom);
+    });
+
+    test('cycleSort switching criteria starts the new one fresh at ascending', () {
+      final controller = MealListController(['Tacos', 'Pasta']);
+
+      controller.cycleSort(MealSortCriterion.name);
+      controller.cycleSort(MealSortCriterion.name);
+      expect(controller.sortOption, MealSortOption.nameZA);
+
+      controller.cycleSort(MealSortCriterion.cookTime);
+      expect(controller.sortOption, MealSortOption.cookTimeAsc);
+    });
+
+    test('cycleSort toggles favorites first on and off', () {
+      final controller = MealListController(['Tacos', 'Pasta']);
+
+      controller.cycleSort(MealSortCriterion.favorites);
+      expect(controller.sortOption, MealSortOption.favoritesFirst);
+
+      controller.cycleSort(MealSortCriterion.favorites);
+      expect(controller.sortOption, MealSortOption.custom);
+    });
+
     test('quick filter matches meals under 30 minutes', () {
       final controller = MealListController(['Tacos', 'Pasta', 'Curry']);
       controller.updateMeal(controller.meals[0], ingredients: const [], instructions: '', cookTimeMinutes: 15, tags: const {});
@@ -102,6 +149,19 @@ void main() {
 
       expect(controller.activeFilters, {MealFilter.quick});
       expect(controller.meals.map((m) => m.name), ['Tacos']);
+    });
+
+    test('vegan and pescatarian filters match their respective tags', () {
+      final controller = MealListController(['Tacos', 'Pasta', 'Curry']);
+      controller.updateMeal(controller.meals[0], ingredients: const [], instructions: '', tags: {MealTag.vegan});
+      controller.updateMeal(controller.meals[1], ingredients: const [], instructions: '', tags: {MealTag.pescatarian});
+      controller.updateMeal(controller.meals[2], ingredients: const [], instructions: '', tags: const {});
+
+      controller.toggleFilter(MealFilter.vegan);
+      expect(controller.meals.map((m) => m.name), ['Tacos']);
+
+      controller.toggleFilter(MealFilter.pescatarian);
+      expect(controller.meals.map((m) => m.name).toSet(), {'Tacos', 'Pasta'});
     });
 
     test('tag filters match any selected tag (OR) and toggle off correctly', () {

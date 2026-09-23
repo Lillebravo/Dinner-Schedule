@@ -85,15 +85,14 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
               const SizedBox(height: 6),
               Text(widget.controller.error!, key: const Key('field-error'), style: const TextStyle(color: AppColors.errorText, fontSize: 12)),
             ],
-            const SizedBox(height: 16),
-            const Text('Filter by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 13)),
             const SizedBox(height: 8),
-            MealFilterControl(active: widget.controller.activeFilters, onToggle: widget.controller.toggleFilter),
-            const SizedBox(height: 16),
-            const Text('Sort by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 13)),
-            const SizedBox(height: 8),
-            MealSortControl(selected: widget.controller.sortOption, onChanged: widget.controller.setSortOption),
-            const SizedBox(height: 12),
+            Row(
+              children: [
+                MealSortControl(controller: widget.controller),
+                MealFilterControl(controller: widget.controller),
+              ],
+            ),
+            const SizedBox(height: 4),
             if (meals.isEmpty)
               const Text('No meals match your filters.', key: Key('no-meals-match'), style: TextStyle(color: AppColors.muted))
             else if (reorderable)

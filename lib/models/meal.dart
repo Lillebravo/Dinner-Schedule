@@ -1,6 +1,9 @@
 /// A characteristic a meal can be tagged with, used to filter the meals list and wheel.
 enum MealTag {
   vegetarian('Vegetarian'),
+  vegan('Vegan'),
+  pescatarian('Pescatarian'),
+  glutenFree('Gluten-Free'),
   comfortFood('Comfort Food'),
   pantryFriendly('Pantry Friendly');
 
