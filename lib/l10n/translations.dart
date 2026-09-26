@@ -62,9 +62,11 @@ const Map<String, Map<String, String>> kTranslations = {
     'mealPlan.weekLabel': 'Week {number}',
     'mealPlan.footer': 'Long-press a scheduled dinner and drag it onto another day to swap them.',
 
-    'shopping.eyebrow': 'COMING SOON',
+    'shopping.eyebrow': 'GROCERY LIST',
     'shopping.title': 'Shopping list',
-    'shopping.subtitle': 'Build a weekly shopping list from your favorite home-cooked meals.',
+    'shopping.subtitle': 'Automatically built from the home-cooked meals scheduled this week.',
+    'shopping.empty': 'No home-cooked meals scheduled this week yet. Add one in Plan to build a shopping list.',
+    'shopping.forMeals': 'For {meals}',
 
     'dayPicker.title': 'Add to schedule',
     'dayPicker.tonight': 'Tonight',
@@ -131,9 +133,11 @@ const Map<String, Map<String, String>> kTranslations = {
     'mealPlan.weekLabel': 'Vecka {number}',
     'mealPlan.footer': 'Håll ner en schemalagd middag och dra den till en annan dag för att byta plats.',
 
-    'shopping.eyebrow': 'KOMMER SNART',
+    'shopping.eyebrow': 'INKÖPSLISTA',
     'shopping.title': 'Inköpslista',
-    'shopping.subtitle': 'Skapa en veckovis inköpslista från dina favorit hemlagade måltider.',
+    'shopping.subtitle': 'Skapas automatiskt från de hemlagade måltider som är schemalagda den här veckan.',
+    'shopping.empty': 'Inga hemlagade måltider schemalagda den här veckan än. Lägg till en under Planera för att skapa en inköpslista.',
+    'shopping.forMeals': 'Till {meals}',
 
     'dayPicker.title': 'Lägg till i schemat',
     'dayPicker.tonight': 'Ikväll',

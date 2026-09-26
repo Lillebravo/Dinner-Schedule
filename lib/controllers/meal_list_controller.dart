@@ -104,6 +104,15 @@ class MealListController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Finds a meal by name (case-insensitive), ignoring active filters/sort.
+  /// Used to resolve a scheduled dinner's title back to its recipe details.
+  Meal? findByName(String name) {
+    for (final meal in _meals) {
+      if (meal.matchesName(name)) return meal;
+    }
+    return null;
+  }
+
   /// Cycles [criterion] through ascending → descending → no sort (custom order).
   /// [MealSortCriterion.favorites] only has one direction, so it just toggles on/off.
   /// Selecting a different criterion than the one currently active starts it fresh (ascending).

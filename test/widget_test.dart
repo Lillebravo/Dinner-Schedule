@@ -11,6 +11,7 @@ import 'package:dishdash/pages/eating_out_wheel_page.dart';
 import 'package:dishdash/pages/home_meals_list_page.dart';
 import 'package:dishdash/pages/home_wheel_page.dart';
 import 'package:dishdash/pages/meal_plan_page.dart';
+import 'package:dishdash/pages/shopping_list_page.dart';
 import 'package:dishdash/theme/app_theme.dart';
 import 'package:dishdash/widgets/schedule/month_day_cell.dart';
 
@@ -241,13 +242,68 @@ void main() {
     });
   });
 
-  group('coming soon sections', () {
-    testWidgets('shows a placeholder for the shopping list', (tester) async {
+  group('shopping list', () {
+    Finder inTab(Finder matching) => find.descendant(of: find.byType(ShoppingListPage), matching: matching);
+
+    testWidgets('shows an empty state when no home-cooked meals are scheduled this week', (tester) async {
       _useDesktopViewport(tester);
       await tester.pumpWidget(const DishDashApp());
 
       await _goTo(tester, 'nav-shopping-list');
-      expect(find.text('Shopping list'), findsOneWidget);
+      expect(inTab(find.textContaining('No home-cooked meals scheduled')), findsOneWidget);
+    });
+
+    testWidgets("auto-populates from a scheduled meal's ingredients and can check items off", (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+
+      await _goTo(tester, 'nav-home-list');
+      await tester.tap(find.text('Tacos al Pastor'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Tortillas');
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await _goTo(tester, 'nav-meal-plan');
+      await tester.tap(find.textContaining('Add meal').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('dinner-picker-option-Tacos al Pastor')));
+      await tester.pumpAndSettle();
+
+      await _goTo(tester, 'nav-shopping-list');
+      expect(inTab(find.text('Tortillas')), findsOneWidget);
+      expect(inTab(find.textContaining('Tacos al Pastor')), findsOneWidget);
+
+      await tester.tap(inTab(find.byKey(const Key('shopping-item-tortillas'))));
+      await tester.pump();
+      final checkbox = tester.widget<CheckboxListTile>(inTab(find.byKey(const Key('shopping-item-tortillas'))));
+      expect(checkbox.value, isTrue);
+    });
+
+    testWidgets('stepping to next week clears the list back to the empty state', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+
+      await _goTo(tester, 'nav-home-list');
+      await tester.tap(find.text('Tacos al Pastor'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Tortillas');
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await _goTo(tester, 'nav-meal-plan');
+      await tester.tap(find.textContaining('Add meal').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('dinner-picker-option-Tacos al Pastor')));
+      await tester.pumpAndSettle();
+
+      await _goTo(tester, 'nav-shopping-list');
+      expect(inTab(find.text('Tortillas')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('period-next')));
+      await tester.pumpAndSettle();
+      expect(inTab(find.text('Tortillas')), findsNothing);
+      expect(inTab(find.textContaining('No home-cooked meals scheduled')), findsOneWidget);
     });
   });
 
