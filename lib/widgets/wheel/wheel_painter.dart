@@ -8,10 +8,11 @@ import '../../utils/wheel_math.dart';
 /// Paints the wheel's colored slices, center hub, and per-slice labels.
 ///
 /// [rotation] (degrees) spins the slices around the center. Each label is
-/// oriented radially (pointing outward along its own slice, like a spoke) so
-/// long names keep fitting as more slices are added - the radial run length
-/// stays constant regardless of slice count, unlike the tangential width.
-/// Labels in the lower half are flipped 180° so they never read upside-down.
+/// rotated clockwise to match its own slice's angle (pointing outward along
+/// its spoke), so long names have more room than fully horizontal text would.
+/// There's no upside-down correction: the rotation always simply follows the
+/// slice, so a label's orientation never changes once painted at a given
+/// angle - including right as a spin settles.
 class WheelPainter extends CustomPainter {
   const WheelPainter({required this.foods, this.rotation = 0});
 
@@ -24,7 +25,10 @@ class WheelPainter extends CustomPainter {
     final radius = size.width / 2;
     final rect = Rect.fromCircle(center: center, radius: radius);
     final segment = WheelMath.segmentAngle(foods.length);
-    final rotationRadians = rotation * math.pi / 180;
+    // Normalize before converting to radians: during a spin `rotation` can be
+    // thousands of degrees (several full turns), and keeping the trig inputs
+    // small avoids floating-point precision loss in the arc/label math.
+    final rotationRadians = (rotation % 360) * math.pi / 180;
 
     canvas.save();
     canvas.translate(center.dx, center.dy);
@@ -58,11 +62,7 @@ class WheelPainter extends CustomPainter {
     final cosR = math.cos(rotationRadians);
     final sinR = math.sin(rotationRadians);
     final position = center + Offset(dx * cosR - dy * sinR, dx * sinR + dy * cosR);
-
-    var textRotation = (WheelMath.sliceCenterAngle(index, foods.length) - 90) * math.pi / 180 + rotationRadians;
-    if (WheelMath.shouldFlipLabel(textRotation)) {
-      textRotation += math.pi;
-    }
+    final textRotation = (WheelMath.sliceCenterAngle(index, foods.length) - 90) * math.pi / 180 + rotationRadians;
 
     final maxWidth = math.max(size.width * 0.36, 60.0);
     final fontSize = WheelMath.labelFontSize(size.width, foods.length);

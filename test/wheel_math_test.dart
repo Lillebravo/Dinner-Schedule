@@ -78,14 +78,5 @@ void main() {
         expect(size, lessThanOrEqualTo(16));
       }
     });
-
-    test('shouldFlipLabel keeps upper-half labels upright and flips lower-half ones', () {
-      expect(WheelMath.shouldFlipLabel(0), isFalse);
-      expect(WheelMath.shouldFlipLabel(1.0), isFalse);
-      expect(WheelMath.shouldFlipLabel(-1.0), isFalse);
-      expect(WheelMath.shouldFlipLabel(3.0), isTrue);
-      expect(WheelMath.shouldFlipLabel(-3.0), isTrue);
-      expect(WheelMath.shouldFlipLabel(4 * 3.141592653589793), isFalse);
-    });
   });
 }

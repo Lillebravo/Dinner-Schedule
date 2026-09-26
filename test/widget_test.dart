@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:dishdash/controllers/food_list_controller.dart';
+import 'package:dishdash/controllers/meal_list_controller.dart';
+import 'package:dishdash/controllers/meal_schedule_controller.dart';
 import 'package:dishdash/main.dart';
 import 'package:dishdash/pages/eating_out_wheel_page.dart';
 import 'package:dishdash/pages/home_meals_list_page.dart';
 import 'package:dishdash/pages/home_wheel_page.dart';
+import 'package:dishdash/pages/meal_plan_page.dart';
+import 'package:dishdash/theme/app_theme.dart';
+import 'package:dishdash/widgets/schedule/month_day_cell.dart';
 
 /// Uses the wide (desktop) layout so every control stays on-screen without scrolling.
 void _useDesktopViewport(WidgetTester tester) {
@@ -232,15 +238,231 @@ void main() {
   });
 
   group('coming soon sections', () {
-    testWidgets('shows placeholders for shopping list and meal plan', (tester) async {
+    testWidgets('shows a placeholder for the shopping list', (tester) async {
       _useDesktopViewport(tester);
       await tester.pumpWidget(const DishDashApp());
 
       await _goTo(tester, 'nav-shopping-list');
       expect(find.text('Shopping list'), findsOneWidget);
+    });
+  });
 
+  group('meal planning', () {
+    Finder inTab(Finder matching) => find.descendant(of: find.byType(MealPlanPage), matching: matching);
+
+    testWidgets('defaults to the weekly view with 7 days and lets a meal be added', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
       await _goTo(tester, 'nav-meal-plan');
-      expect(find.text('Meal planning'), findsOneWidget);
+
+      expect(inTab(find.text('Weekly')), findsOneWidget);
+      expect(inTab(find.textContaining('Week ')), findsOneWidget);
+      expect(inTab(find.textContaining('Add meal')), findsNWidgets(7));
+
+      await tester.tap(inTab(find.textContaining('Add meal')).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('dinner-picker-option-Tacos al Pastor')));
+      await tester.pumpAndSettle();
+
+      expect(inTab(find.text('Tacos al Pastor')), findsOneWidget);
+    });
+
+    testWidgets('switching to monthly shows a calendar grid', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-meal-plan');
+
+      await tester.tap(inTab(find.text('Monthly')));
+      await tester.pumpAndSettle();
+
+      expect(inTab(find.byType(MonthDayCell)), findsNWidgets(42));
+    });
+
+    testWidgets('monthly view does not overflow on a narrow phone-width layout', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 360,
+              child: MealPlanPage(
+                scheduleController: MealScheduleController(),
+                mealListController: MealListController(const ['Tacos', 'Pasta']),
+                foodListController: FoodListController(const ['Sushi Bar', 'Burger Place']),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Monthly'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('month picker sheet does not overflow on a narrow, large-text viewport', (tester) async {
+      tester.view.physicalSize = const Size(320, 700);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
+            child: Scaffold(
+              body: MealPlanPage(
+                scheduleController: MealScheduleController(),
+                mealListController: MealListController(const ['Tacos', 'Pasta']),
+                foodListController: FoodListController(const ['Sushi Bar', 'Burger Place']),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.ensureVisible(find.text('Monthly'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Monthly'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('period-label')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('period-label')));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+
+      await tester.tap(find.byType(MonthDayCell).first);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('offers a quick way back once the user has navigated away from today', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-meal-plan');
+
+      expect(inTab(find.byKey(const Key('jump-to-current-period'))), findsNothing);
+
+      await tester.tap(inTab(find.byKey(const Key('period-next'))));
+      await tester.pumpAndSettle();
+      expect(inTab(find.text('This week')), findsOneWidget);
+
+      await tester.tap(inTab(find.text('This week')));
+      await tester.pumpAndSettle();
+      expect(inTab(find.byKey(const Key('jump-to-current-period'))), findsNothing);
+
+      await tester.tap(inTab(find.text('Monthly')));
+      await tester.pumpAndSettle();
+      expect(inTab(find.byKey(const Key('jump-to-current-period'))), findsNothing);
+
+      await tester.tap(inTab(find.byKey(const Key('period-next'))));
+      await tester.pumpAndSettle();
+      expect(inTab(find.text('This month')), findsOneWidget);
+    });
+
+    testWidgets('spinning the home wheel offers adding the pick to the schedule', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+
+      await tester.tap(find.byKey(const Key('spin-button')));
+      await tester.pumpAndSettle(const Duration(milliseconds: 3300));
+
+      expect(find.byKey(const Key('add-to-schedule-button')), findsOneWidget);
+
+      await tester.ensureVisible(find.byKey(const Key('add-to-schedule-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('add-to-schedule-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Tonight'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Added'), findsOneWidget);
+    });
+
+    testWidgets('the day picker shows what is already scheduled on a day', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+
+      await tester.tap(find.byKey(const Key('spin-button')));
+      await tester.pumpAndSettle(const Duration(milliseconds: 3300));
+      await tester.ensureVisible(find.byKey(const Key('add-to-schedule-button')));
+      await tester.tap(find.byKey(const Key('add-to-schedule-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Tonight'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('add-to-schedule-button')));
+      await tester.tap(find.byKey(const Key('add-to-schedule-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('day-picker-already-planned')), findsOneWidget);
+    });
+
+    testWidgets('the day picker fills in a day\'s dot once something is planned', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+
+      final today = DateTime.now();
+      final todayDotKey = Key('day-picker-dot-${DateTime(today.year, today.month, today.day).toIso8601String()}');
+
+      Color? dotColor() {
+        final container = tester.widget<Container>(find.descendant(of: find.byKey(todayDotKey), matching: find.byType(Container)));
+        return (container.decoration as BoxDecoration).color;
+      }
+
+      await tester.tap(find.byKey(const Key('spin-button')));
+      await tester.pumpAndSettle(const Duration(milliseconds: 3300));
+      await tester.ensureVisible(find.byKey(const Key('add-to-schedule-button')));
+      await tester.tap(find.byKey(const Key('add-to-schedule-button')));
+      await tester.pumpAndSettle();
+
+      expect(dotColor(), isNot(AppColors.coral));
+
+      await tester.tap(find.text('Tonight'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('add-to-schedule-button')));
+      await tester.tap(find.byKey(const Key('add-to-schedule-button')));
+      await tester.pumpAndSettle();
+
+      expect(dotColor(), AppColors.coral);
+    });
+
+    testWidgets('the day picker\'s custom date fallback has no manual keyboard entry option', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+
+      await tester.tap(find.byKey(const Key('spin-button')));
+      await tester.pumpAndSettle(const Duration(milliseconds: 3300));
+      await tester.ensureVisible(find.byKey(const Key('add-to-schedule-button')));
+      await tester.tap(find.byKey(const Key('add-to-schedule-button')));
+      await tester.pumpAndSettle();
+
+      await tester.dragUntilVisible(
+        find.byKey(const Key('day-picker-custom-date')),
+        find.byType(ListView),
+        const Offset(0, -500),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('day-picker-custom-date')));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.edit), findsNothing);
+    });
+
+    testWidgets('lets a meal be added to the schedule directly from the meals list', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(find.byKey(const Key('add-to-schedule-Tacos al Pastor')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Tonight'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Added Tacos al Pastor'), findsOneWidget);
     });
   });
 }

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/meal_list_controller.dart';
+import '../controllers/meal_schedule_controller.dart';
 import '../controllers/wheel_spin_controller.dart';
+import '../models/scheduled_dinner.dart';
 import '../widgets/common/section_intro.dart';
+import '../widgets/schedule/add_to_schedule_button.dart';
 import '../widgets/wheel/wheel_stage.dart';
 
 /// Spins a wheel of the user's own home-cooked meals.
 class HomeWheelPage extends StatefulWidget {
-  const HomeWheelPage({super.key, required this.controller});
+  const HomeWheelPage({super.key, required this.controller, required this.scheduleController});
 
   final MealListController controller;
+  final MealScheduleController scheduleController;
 
   @override
   State<HomeWheelPage> createState() => _HomeWheelPageState();
@@ -70,6 +74,13 @@ class _HomeWheelPageState extends State<HomeWheelPage> with SingleTickerProvider
               onSpin: _spin,
               selectedEntry: _selectedMeal,
               emptyHint: emptyHint,
+              scheduleAction: _selectedMeal == null
+                  ? null
+                  : AddToScheduleButton(
+                      title: _selectedMeal!,
+                      type: DinnerType.homeCooked,
+                      scheduleController: widget.scheduleController,
+                    ),
             ),
           ],
         ),

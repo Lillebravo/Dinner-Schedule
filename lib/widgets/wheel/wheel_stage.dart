@@ -16,6 +16,7 @@ class WheelStage extends StatelessWidget {
     required this.onSpin,
     required this.selectedEntry,
     this.emptyHint,
+    this.scheduleAction,
   });
 
   final List<String> entries;
@@ -24,6 +25,10 @@ class WheelStage extends StatelessWidget {
   final VoidCallback? onSpin;
   final String? selectedEntry;
   final String? emptyHint;
+
+  /// Shown below the result once a winner is picked, letting the user add it
+  /// straight to the meal schedule.
+  final Widget? scheduleAction;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +49,10 @@ class WheelStage extends StatelessWidget {
               ),
             const SizedBox(height: 20),
             SpinResultLabel(selectedFood: selectedEntry),
+            if (selectedEntry != null && scheduleAction != null) ...[
+              const SizedBox(height: 8),
+              scheduleAction!,
+            ],
           ],
         );
       },

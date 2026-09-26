@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../controllers/food_list_controller.dart';
 import '../controllers/meal_list_controller.dart';
+import '../controllers/meal_schedule_controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
 import '../widgets/navigation/app_bottom_nav_bar.dart';
 import 'eating_out_wheel_page.dart';
 import 'home_meals_list_page.dart';
 import 'home_wheel_page.dart';
+import 'meal_plan_page.dart';
 import 'placeholder_page.dart';
 
 /// The app's persistent shell: header, bottom navigation, and the five sections.
@@ -23,6 +25,7 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   final _mealListController = MealListController(const ['Spaghetti Bolognese', 'Chicken Stir-fry', 'Veggie Curry', 'Tacos al Pastor']);
   final _eatingOutController = FoodListController(const ['Sushi Bar', 'Burger Place', 'Pizzeria', 'Taco Truck']);
+  final _scheduleController = MealScheduleController();
 
   // Home-cooking wheel sits in the middle of the bottom bar.
   int _selectedIndex = 2;
@@ -31,24 +34,24 @@ class _MainShellState extends State<MainShell> {
   void dispose() {
     _mealListController.dispose();
     _eatingOutController.dispose();
+    _scheduleController.dispose();
     super.dispose();
   }
 
   List<Widget> get _pages => [
-        EatingOutWheelPage(controller: _eatingOutController),
-        HomeMealsListPage(controller: _mealListController),
-        HomeWheelPage(controller: _mealListController),
+        EatingOutWheelPage(controller: _eatingOutController, scheduleController: _scheduleController),
+        HomeMealsListPage(controller: _mealListController, scheduleController: _scheduleController),
+        HomeWheelPage(controller: _mealListController, scheduleController: _scheduleController),
         const PlaceholderPage(
           eyebrow: 'COMING SOON',
           title: 'Shopping list',
           subtitle: 'Build a weekly shopping list from your favorite home-cooked meals.',
           icon: Icons.shopping_cart_outlined,
         ),
-        const PlaceholderPage(
-          eyebrow: 'COMING SOON',
-          title: 'Meal planning',
-          subtitle: 'Plan out each night of the week ahead of time.',
-          icon: Icons.calendar_month_outlined,
+        MealPlanPage(
+          scheduleController: _scheduleController,
+          mealListController: _mealListController,
+          foodListController: _eatingOutController,
         ),
       ];
 

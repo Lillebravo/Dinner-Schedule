@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/food_list_controller.dart';
+import '../controllers/meal_schedule_controller.dart';
 import '../controllers/wheel_spin_controller.dart';
+import '../models/scheduled_dinner.dart';
 import '../widgets/common/section_intro.dart';
 import '../widgets/food/food_panel.dart';
+import '../widgets/schedule/add_to_schedule_button.dart';
 import '../widgets/wheel/wheel_stage.dart';
 
 /// Spins a wheel of restaurants and takeout spots the user wants to try.
 class EatingOutWheelPage extends StatefulWidget {
-  const EatingOutWheelPage({super.key, required this.controller});
+  const EatingOutWheelPage({super.key, required this.controller, required this.scheduleController});
 
   final FoodListController controller;
+  final MealScheduleController scheduleController;
 
   @override
   State<EatingOutWheelPage> createState() => _EatingOutWheelPageState();
@@ -71,6 +75,13 @@ class _EatingOutWheelPageState extends State<EatingOutWheelPage> with SingleTick
               onSpin: _spin,
               selectedEntry: _selectedFood,
               emptyHint: 'Add at least two places to spin the wheel.',
+              scheduleAction: _selectedFood == null
+                  ? null
+                  : AddToScheduleButton(
+                      title: _selectedFood!,
+                      type: DinnerType.eatingOut,
+                      scheduleController: widget.scheduleController,
+                    ),
             );
             final panel = FoodPanel(
               foods: foods,

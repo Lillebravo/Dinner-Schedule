@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/meal_list_controller.dart';
+import '../controllers/meal_schedule_controller.dart';
 import '../models/meal.dart';
+import '../models/scheduled_dinner.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/count_badge.dart';
 import '../widgets/common/entry_input_row.dart';
@@ -10,13 +12,15 @@ import '../widgets/meal/meal_edit_sheet.dart';
 import '../widgets/meal/meal_filter_control.dart';
 import '../widgets/meal/meal_sort_control.dart';
 import '../widgets/meal/meal_tile.dart';
+import '../widgets/schedule/add_to_schedule_button.dart';
 
 /// Manages the user's home-cooked meals: adding, favoriting, sorting, manual
 /// ranking, and recipe details (ingredients + instructions).
 class HomeMealsListPage extends StatefulWidget {
-  const HomeMealsListPage({super.key, required this.controller});
+  const HomeMealsListPage({super.key, required this.controller, required this.scheduleController});
 
   final MealListController controller;
+  final MealScheduleController scheduleController;
 
   @override
   State<HomeMealsListPage> createState() => _HomeMealsListPageState();
@@ -109,6 +113,13 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
                       onToggleFavorite: () => widget.controller.toggleFavorite(meal),
                       onRemove: () => widget.controller.remove(meal),
                       onTap: () => _editMeal(meal),
+                      scheduleAction: AddToScheduleButton(
+                        key: Key('add-to-schedule-${meal.name}'),
+                        title: meal.name,
+                        type: DinnerType.homeCooked,
+                        scheduleController: widget.scheduleController,
+                        compact: true,
+                      ),
                     ),
                 ],
               )
@@ -121,6 +132,13 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
                   onToggleFavorite: () => widget.controller.toggleFavorite(meal),
                   onRemove: () => widget.controller.remove(meal),
                   onTap: () => _editMeal(meal),
+                  scheduleAction: AddToScheduleButton(
+                    key: Key('add-to-schedule-${meal.name}'),
+                    title: meal.name,
+                    type: DinnerType.homeCooked,
+                    scheduleController: widget.scheduleController,
+                    compact: true,
+                  ),
                 ),
             const SizedBox(height: 12),
             const Text(

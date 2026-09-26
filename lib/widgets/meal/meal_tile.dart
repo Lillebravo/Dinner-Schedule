@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../../models/meal.dart';
 import '../../theme/app_theme.dart';
 
-/// A single meal row: favorite toggle, name, cook time, and remove action. Tapping
-/// the row (outside the icon buttons) opens the meal's recipe details for editing.
+/// A single meal row: favorite toggle, name, cook time, schedule action, and
+/// remove action. Tapping the row (outside the icon buttons) opens the meal's
+/// recipe details for editing.
 class MealTile extends StatelessWidget {
   const MealTile({
     super.key,
@@ -13,6 +14,7 @@ class MealTile extends StatelessWidget {
     required this.onToggleFavorite,
     required this.onRemove,
     required this.onTap,
+    this.scheduleAction,
   });
 
   final Meal meal;
@@ -20,6 +22,10 @@ class MealTile extends StatelessWidget {
   final VoidCallback onToggleFavorite;
   final VoidCallback onRemove;
   final VoidCallback onTap;
+
+  /// Shown between the meal's details and the remove button, letting the user
+  /// add this meal straight to the schedule.
+  final Widget? scheduleAction;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +56,7 @@ class MealTile extends StatelessWidget {
                 ],
               ),
             ),
+            ?scheduleAction,
             IconButton(
               icon: const Icon(Icons.close),
               color: AppColors.muted,

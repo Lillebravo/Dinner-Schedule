@@ -40,6 +40,10 @@ class WheelSpinController extends ChangeNotifier {
       ..reset()
       ..forward().whenComplete(() {
         _currentRotation = target % 360;
+        // Snap back to a plain stopped animation at the normalized angle so the
+        // settled wheel renders from the same small rotation value as a fresh,
+        // never-spun wheel, instead of holding onto the multi-turn raw `target`.
+        _rotationAnimation = AlwaysStoppedAnimation(_currentRotation);
         _spinning = false;
         notifyListeners();
         onSettled(selected);

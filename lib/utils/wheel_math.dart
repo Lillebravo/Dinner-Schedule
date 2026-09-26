@@ -67,13 +67,5 @@ class WheelMath {
     final diameterLimit = diameter * 0.045;
     return math.min(geometryLimit, diameterLimit).clamp(minFontSize, maxFontSize);
   }
-
-  /// True if a label whose upright reading direction currently points at
-  /// [angleRadians] (canvas convention: 0 = east/right, increasing clockwise)
-  /// would read upside-down and should be rotated another 180° for readability.
-  static bool shouldFlipLabel(double angleRadians) {
-    final twoPi = 2 * math.pi;
-    final normalized = ((angleRadians + math.pi) % twoPi + twoPi) % twoPi - math.pi;
-    return normalized.abs() > math.pi / 2;
-  }
 }
+
