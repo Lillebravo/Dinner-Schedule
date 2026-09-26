@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
 import '../../theme/app_theme.dart';
 
 /// How the shopping list is currently ordered.
@@ -54,9 +55,9 @@ class ShoppingSortControl extends StatelessWidget {
 
   final ShoppingSortController controller;
 
-  static const _labels = {
-    ShoppingSortCriterion.name: 'Name',
-    ShoppingSortCriterion.status: 'Unchecked first',
+  static const _labelKeys = {
+    ShoppingSortCriterion.name: 'sort.name',
+    ShoppingSortCriterion.status: 'shopping.sortUnchecked',
   };
 
   void _openSheet(BuildContext context) {
@@ -72,13 +73,13 @@ class ShoppingSortControl extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('Sort by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 13)),
+                  child: Text(tr(context, 'sort.title'), style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 13)),
                 ),
               ),
               for (final criterion in ShoppingSortCriterion.values)
                 ListTile(
                   key: Key('shopping-sort-option-${criterion.name}'),
-                  title: Text(_labels[criterion]!),
+                  title: Text(tr(context, _labelKeys[criterion]!)),
                   trailing: controller.activeCriterion == criterion
                       ? Icon(controller.isDescending ? Icons.arrow_downward : Icons.arrow_upward, color: AppColors.of(context).coral)
                       : Icon(Icons.unfold_more, color: AppColors.of(context).muted),
@@ -97,7 +98,7 @@ class ShoppingSortControl extends StatelessWidget {
     final active = controller.activeCriterion != null;
     return IconButton(
       key: const Key('shopping-sort-button'),
-      tooltip: 'Sort',
+      tooltip: tr(context, 'sort.tooltip'),
       onPressed: () => _openSheet(context),
       icon: Badge(isLabelVisible: active, smallSize: 8, child: const Icon(Icons.sort)),
     );

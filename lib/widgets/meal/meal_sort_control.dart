@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/meal_list_controller.dart';
+import '../../l10n/app_locale.dart';
 import '../../theme/app_theme.dart';
 
 /// A single icon button that opens a sheet of sort criteria. Tapping a criterion
@@ -10,10 +11,10 @@ class MealSortControl extends StatelessWidget {
 
   final MealListController controller;
 
-  static const _labels = {
-    MealSortCriterion.name: 'Name',
-    MealSortCriterion.cookTime: 'Time to cook',
-    MealSortCriterion.favorites: 'Favorites first',
+  static const _labelKeys = {
+    MealSortCriterion.name: 'sort.name',
+    MealSortCriterion.cookTime: 'sort.cookTime',
+    MealSortCriterion.favorites: 'sort.favoritesFirst',
   };
 
   void _openSheet(BuildContext context) {
@@ -29,13 +30,13 @@ class MealSortControl extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('Sort by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 13)),
+                  child: Text(tr(context, 'sort.title'), style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 13)),
                 ),
               ),
               for (final criterion in MealSortCriterion.values)
                 ListTile(
                   key: Key('sort-option-${criterion.name}'),
-                  title: Text(_labels[criterion]!),
+                  title: Text(tr(context, _labelKeys[criterion]!)),
                   trailing: controller.activeSortCriterion == criterion
                       ? Icon(controller.isSortDescending ? Icons.arrow_downward : Icons.arrow_upward, color: AppColors.of(context).coral)
                       : Icon(Icons.unfold_more, color: AppColors.of(context).muted),
@@ -54,7 +55,7 @@ class MealSortControl extends StatelessWidget {
     final active = controller.activeSortCriterion != null;
     return IconButton(
       key: const Key('sort-menu-button'),
-      tooltip: 'Sort',
+      tooltip: tr(context, 'sort.tooltip'),
       onPressed: () => _openSheet(context),
       icon: Badge(isLabelVisible: active, smallSize: 8, child: const Icon(Icons.sort)),
     );

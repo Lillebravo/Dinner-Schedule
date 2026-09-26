@@ -5,6 +5,22 @@ const Map<String, Map<String, String>> kTranslations = {
   'en': {
     'common.add': 'Add',
 
+    'sort.title': 'Sort by',
+    'sort.tooltip': 'Sort',
+    'sort.name': 'Name',
+    'sort.cookTime': 'Time to cook',
+    'sort.favoritesFirst': 'Favorites first',
+
+    'filter.title': 'Filter by',
+    'filter.tooltip': 'Filter',
+    'filter.quick': 'Quick (<30m)',
+    'filter.vegetarian': 'Vegetarian',
+    'filter.vegan': 'Vegan',
+    'filter.pescatarian': 'Pescatarian',
+    'filter.glutenFree': 'Gluten-Free',
+    'filter.comfortFood': 'Comfort Food',
+    'filter.pantryFriendly': 'Pantry Friendly',
+
     'header.eyebrow': 'DINNER DECISION MAKER',
     'header.themeTooltipLight': 'Switch to dark mode',
     'header.themeTooltipDark': 'Switch to light mode',
@@ -72,6 +88,7 @@ const Map<String, Map<String, String>> kTranslations = {
     'shopping.hideBought': 'Hide bought items',
     'shopping.doneShopping': 'Done shopping',
     'shopping.allBought': 'Everything on the list is checked off.',
+    'shopping.sortUnchecked': 'Unchecked first',
 
     'dayPicker.title': 'Add to schedule',
     'dayPicker.tonight': 'Tonight',
@@ -80,6 +97,22 @@ const Map<String, Map<String, String>> kTranslations = {
   },
   'sv': {
     'common.add': 'Lägg till',
+
+    'sort.title': 'Sortera efter',
+    'sort.tooltip': 'Sortera',
+    'sort.name': 'Namn',
+    'sort.cookTime': 'Tillagningstid',
+    'sort.favoritesFirst': 'Favoriter först',
+
+    'filter.title': 'Filtrera efter',
+    'filter.tooltip': 'Filtrera',
+    'filter.quick': 'Snabbt (<30 min)',
+    'filter.vegetarian': 'Vegetariskt',
+    'filter.vegan': 'Veganskt',
+    'filter.pescatarian': 'Pescetarianskt',
+    'filter.glutenFree': 'Glutenfritt',
+    'filter.comfortFood': 'Tröstmat',
+    'filter.pantryFriendly': 'Skafferivänligt',
 
     'header.eyebrow': 'MIDDAGENS BESLUTSFATTARE',
     'header.themeTooltipLight': 'Byt till mörkt läge',
@@ -148,6 +181,7 @@ const Map<String, Map<String, String>> kTranslations = {
     'shopping.hideBought': 'Dölj köpta varor',
     'shopping.doneShopping': 'Klar med handlingen',
     'shopping.allBought': 'Allt på listan är avbockat.',
+    'shopping.sortUnchecked': 'Obockade först',
 
     'dayPicker.title': 'Lägg till i schemat',
     'dayPicker.tonight': 'Ikväll',

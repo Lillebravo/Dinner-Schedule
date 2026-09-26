@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/meal_list_controller.dart';
+import '../../l10n/app_locale.dart';
 import '../../theme/app_theme.dart';
 
 /// A single icon button that opens a sheet of smart filters (Quick, Vegetarian,
@@ -9,6 +10,16 @@ class MealFilterControl extends StatelessWidget {
   const MealFilterControl({super.key, required this.controller});
 
   final MealListController controller;
+
+  static const _labelKeys = {
+    MealFilter.quick: 'filter.quick',
+    MealFilter.vegetarian: 'filter.vegetarian',
+    MealFilter.vegan: 'filter.vegan',
+    MealFilter.pescatarian: 'filter.pescatarian',
+    MealFilter.glutenFree: 'filter.glutenFree',
+    MealFilter.comfortFood: 'filter.comfortFood',
+    MealFilter.pantryFriendly: 'filter.pantryFriendly',
+  };
 
   void _openSheet(BuildContext context) {
     showModalBottomSheet<void>(
@@ -23,13 +34,13 @@ class MealFilterControl extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('Filter by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 13)),
+                  child: Text(tr(context, 'filter.title'), style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 13)),
                 ),
               ),
               for (final filter in MealFilter.values)
                 CheckboxListTile(
                   key: Key('filter-${filter.name}'),
-                  title: Text(filter.label),
+                  title: Text(tr(context, _labelKeys[filter]!)),
                   value: controller.activeFilters.contains(filter),
                   onChanged: (_) => controller.toggleFilter(filter),
                 ),
@@ -45,7 +56,7 @@ class MealFilterControl extends StatelessWidget {
     final active = controller.activeFilters.isNotEmpty;
     return IconButton(
       key: const Key('filter-menu-button'),
-      tooltip: 'Filter',
+      tooltip: tr(context, 'filter.tooltip'),
       onPressed: () => _openSheet(context),
       icon: Badge(
         isLabelVisible: active,
