@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../controllers/food_list_controller.dart';
 import '../controllers/meal_list_controller.dart';
 import '../controllers/meal_schedule_controller.dart';
+import '../l10n/app_locale.dart';
 import '../models/scheduled_dinner.dart';
 import '../theme/app_theme.dart';
 import '../utils/calendar_math.dart';
@@ -112,8 +113,9 @@ class _MealPlanPageState extends State<MealPlanPage> {
     );
   }
 
-  String get _periodLabel =>
-      _mode == PlanViewMode.weekly ? 'Week ${CalendarMath.isoWeekNumber(_focusedDay)}' : _monthYearLabel(_focusedDay);
+  String get _periodLabel => _mode == PlanViewMode.weekly
+      ? tr(context, 'mealPlan.weekLabel', {'number': '${CalendarMath.isoWeekNumber(_focusedDay)}'})
+      : _monthYearLabel(_focusedDay);
 
   String _monthYearLabel(DateTime day) => '${_monthNames[day.month - 1]} ${day.year}';
 
@@ -137,18 +139,19 @@ class _MealPlanPageState extends State<MealPlanPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionIntro(
-              eyebrow: 'MEAL PLANNING',
-              headline: 'Plan your week of dinners.',
-              subtitle: 'Assign a home-cooked meal or a night out to any day, then drag to rearrange.',
+            SectionIntro(
+              eyebrow: tr(context, 'mealPlan.eyebrow'),
+              headline: tr(context, 'mealPlan.headline'),
+              subtitle: tr(context, 'mealPlan.subtitle'),
             ),
             const SizedBox(height: 32),
             Center(
               child: SegmentedButton<PlanViewMode>(
                 key: const Key('plan-view-toggle'),
-                segments: const [
-                  ButtonSegment(value: PlanViewMode.weekly, label: Text('Weekly'), icon: Icon(Icons.view_week_outlined)),
-                  ButtonSegment(value: PlanViewMode.monthly, label: Text('Monthly'), icon: Icon(Icons.calendar_view_month_outlined)),
+                segments: [
+                  ButtonSegment(value: PlanViewMode.weekly, label: Text(tr(context, 'mealPlan.weekly')), icon: const Icon(Icons.view_week_outlined)),
+                  ButtonSegment(
+                      value: PlanViewMode.monthly, label: Text(tr(context, 'mealPlan.monthly')), icon: const Icon(Icons.calendar_view_month_outlined)),
                 ],
                 selected: {_mode},
                 onSelectionChanged: (selection) => setState(() => _mode = selection.first),
@@ -166,15 +169,15 @@ class _MealPlanPageState extends State<MealPlanPage> {
                 child: TextButton(
                   key: const Key('jump-to-current-period'),
                   onPressed: _jumpToCurrentPeriod,
-                  child: Text(_mode == PlanViewMode.weekly ? 'This week' : 'This month'),
+                  child: Text(_mode == PlanViewMode.weekly ? tr(context, 'mealPlan.thisWeek') : tr(context, 'mealPlan.thisMonth')),
                 ),
               ),
             const SizedBox(height: 20),
             if (_mode == PlanViewMode.weekly) _buildWeekly(today) else _buildMonthly(today),
             const SizedBox(height: 12),
-            const Text(
-              'Long-press a scheduled dinner and drag it onto another day to swap them.',
-              style: TextStyle(color: AppColors.muted, fontSize: 12),
+            Text(
+              tr(context, 'mealPlan.footer'),
+              style: TextStyle(color: AppColors.of(context).muted, fontSize: 12),
             ),
           ],
         ),
@@ -211,7 +214,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
             for (final label in _weekdayHeadings)
               Expanded(
                 child: Center(
-                  child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.muted, fontSize: 12)),
+                  child: Text(label, style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).muted, fontSize: 12)),
                 ),
               ),
           ],

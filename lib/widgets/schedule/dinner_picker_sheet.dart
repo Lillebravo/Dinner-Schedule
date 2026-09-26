@@ -30,11 +30,11 @@ class DinnerPickerSheet extends StatelessWidget {
           height: MediaQuery.of(context).size.height * 0.7,
           child: Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("Pick tonight's dinner", style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 16)),
+                  child: Text("Pick tonight's dinner", style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 16)),
                 ),
               ),
               const TabBar(
@@ -77,7 +77,7 @@ class _EntryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (names.isEmpty) {
-      return Center(child: Text(emptyMessage, style: const TextStyle(color: AppColors.muted)));
+      return Center(child: Text(emptyMessage, style: TextStyle(color: AppColors.of(context).muted)));
     }
     return ListView(
       children: [

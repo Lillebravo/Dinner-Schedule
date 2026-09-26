@@ -10,24 +10,25 @@ class SectionIntro extends StatelessWidget {
     required this.eyebrow,
     required this.headline,
     required this.subtitle,
-    this.eyebrowColor = AppColors.coralDark,
+    this.eyebrowColor,
   });
 
   final String eyebrow;
-  final Color eyebrowColor;
+  final Color? eyebrowColor;
   final String headline;
   final String subtitle;
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        EyebrowLabel(eyebrow, color: eyebrowColor),
+        EyebrowLabel(eyebrow, color: eyebrowColor ?? colors.coralDark),
         const SizedBox(height: 12),
-        Text(headline, style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: AppColors.ink, height: 1.05)),
+        Text(headline, style: TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: colors.ink, height: 1.05)),
         const SizedBox(height: 14),
-        Text(subtitle, style: const TextStyle(color: AppColors.muted, fontSize: 16, height: 1.5)),
+        Text(subtitle, style: TextStyle(color: colors.muted, fontSize: 16, height: 1.5)),
       ],
     );
   }

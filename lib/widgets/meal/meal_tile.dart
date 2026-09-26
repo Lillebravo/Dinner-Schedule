@@ -29,17 +29,18 @@ class MealTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.line))),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: colors.line))),
         child: Row(
           children: [
             IconButton(
               key: Key('favorite-${meal.name}'),
               icon: Icon(meal.isFavorite ? Icons.star : Icons.star_border),
-              color: meal.isFavorite ? AppColors.coral : AppColors.muted,
+              color: meal.isFavorite ? colors.coral : colors.muted,
               tooltip: meal.isFavorite ? 'Unfavorite ${meal.name}' : 'Favorite ${meal.name}',
               onPressed: onToggleFavorite,
             ),
@@ -50,16 +51,16 @@ class MealTile extends StatelessWidget {
                   Text(meal.name, style: const TextStyle(fontWeight: FontWeight.w700)),
                   if (meal.cookTimeMinutes != null)
                     Text('${meal.cookTimeMinutes} min · ${meal.ingredients.length} ingredients',
-                        style: const TextStyle(color: AppColors.muted, fontSize: 12))
+                        style: TextStyle(color: colors.muted, fontSize: 12))
                   else
-                    Text('${meal.ingredients.length} ingredients', style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+                    Text('${meal.ingredients.length} ingredients', style: TextStyle(color: colors.muted, fontSize: 12)),
                 ],
               ),
             ),
             ?scheduleAction,
             IconButton(
               icon: const Icon(Icons.close),
-              color: AppColors.muted,
+              color: colors.muted,
               tooltip: 'Remove ${meal.name}',
               onPressed: canRemove ? onRemove : null,
             ),

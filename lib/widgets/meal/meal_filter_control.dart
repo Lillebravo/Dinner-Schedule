@@ -19,11 +19,11 @@ class MealFilterControl extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('Filter by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 13)),
+                  child: Text('Filter by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 13)),
                 ),
               ),
               for (final filter in MealFilter.values)

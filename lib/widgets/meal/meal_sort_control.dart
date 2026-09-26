@@ -25,11 +25,11 @@ class MealSortControl extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('Sort by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 13)),
+                  child: Text('Sort by', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 13)),
                 ),
               ),
               for (final criterion in MealSortCriterion.values)
@@ -37,8 +37,8 @@ class MealSortControl extends StatelessWidget {
                   key: Key('sort-option-${criterion.name}'),
                   title: Text(_labels[criterion]!),
                   trailing: controller.activeSortCriterion == criterion
-                      ? Icon(controller.isSortDescending ? Icons.arrow_downward : Icons.arrow_upward, color: AppColors.coral)
-                      : const Icon(Icons.unfold_more, color: AppColors.muted),
+                      ? Icon(controller.isSortDescending ? Icons.arrow_downward : Icons.arrow_upward, color: AppColors.of(context).coral)
+                      : Icon(Icons.unfold_more, color: AppColors.of(context).muted),
                   selected: controller.activeSortCriterion == criterion,
                   onTap: () => controller.cycleSort(criterion),
                 ),

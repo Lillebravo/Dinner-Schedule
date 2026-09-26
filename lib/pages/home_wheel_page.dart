@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../controllers/meal_list_controller.dart';
 import '../controllers/meal_schedule_controller.dart';
 import '../controllers/wheel_spin_controller.dart';
+import '../l10n/app_locale.dart';
 import '../models/scheduled_dinner.dart';
 import '../widgets/common/section_intro.dart';
 import '../widgets/schedule/add_to_schedule_button.dart';
@@ -52,8 +53,8 @@ class _HomeWheelPageState extends State<HomeWheelPage> with SingleTickerProvider
   Widget build(BuildContext context) {
     final meals = widget.controller.meals;
     final emptyHint = widget.controller.activeFilters.isNotEmpty
-        ? 'Not enough meals match your filters. Adjust filters in the Meals tab.'
-        : 'Add at least two meals in the Meals tab to spin.';
+        ? tr(context, 'homeWheel.emptyHintFiltered')
+        : tr(context, 'homeWheel.emptyHint');
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(28, 12, 28, 28),
       child: ConstrainedBox(
@@ -61,10 +62,10 @@ class _HomeWheelPageState extends State<HomeWheelPage> with SingleTickerProvider
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionIntro(
-              eyebrow: "TONIGHT'S MENU",
-              headline: 'Let the wheel pick dinner.',
-              subtitle: 'Spinning from the meals in your Meals list - add more there any time.',
+            SectionIntro(
+              eyebrow: tr(context, 'homeWheel.eyebrow'),
+              headline: tr(context, 'homeWheel.headline'),
+              subtitle: tr(context, 'homeWheel.subtitle'),
             ),
             const SizedBox(height: 40),
             WheelStage(

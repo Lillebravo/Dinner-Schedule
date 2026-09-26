@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/calendar_math.dart';
 
@@ -48,7 +49,7 @@ class _WeekPickerSheetState extends State<WeekPickerSheet> {
                   onPressed: () => _shiftPage(-weeksPerPage),
                   icon: const Icon(Icons.chevron_left),
                 ),
-                const Text('Choose a week', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink)),
+                Text('Choose a week', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink)),
                 IconButton(
                   key: const Key('week-page-next'),
                   onPressed: () => _shiftPage(weeksPerPage),
@@ -59,7 +60,7 @@ class _WeekPickerSheetState extends State<WeekPickerSheet> {
             for (final week in weeks)
               ListTile(
                 key: Key('week-option-${week.toIso8601String()}'),
-                title: Text('Week ${CalendarMath.isoWeekNumber(week)}'),
+                title: Text(tr(context, 'mealPlan.weekLabel', {'number': '${CalendarMath.isoWeekNumber(week)}'})),
                 subtitle: Text(_rangeLabel(week)),
                 onTap: () => Navigator.of(context).pop(week),
               ),

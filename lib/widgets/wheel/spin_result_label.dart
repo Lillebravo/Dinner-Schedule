@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
 import '../../theme/app_theme.dart';
 
 /// Announces the spin outcome, or a placeholder before the first spin.
@@ -11,21 +12,23 @@ class SpinResultLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final food = selectedFood;
+    final colors = AppColors.of(context);
     return Semantics(
       liveRegion: true,
       child: food != null
           ? Column(
               children: [
-                const Text('Dinner is decided', style: TextStyle(color: AppColors.muted)),
+                Text(tr(context, 'result.decided'), style: TextStyle(color: colors.muted)),
                 const SizedBox(height: 4),
                 Text(
                   food,
                   key: const Key('result-text'),
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.ink),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: colors.ink),
                 ),
               ],
             )
-          : const Text('Your pick will appear here', key: Key('result-placeholder'), style: TextStyle(color: AppColors.muted)),
+          : Text(tr(context, 'result.placeholder'), key: const Key('result-placeholder'), style: TextStyle(color: colors.muted)),
     );
   }
 }
+

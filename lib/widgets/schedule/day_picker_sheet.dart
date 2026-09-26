@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/meal_schedule_controller.dart';
+import '../../l10n/app_locale.dart';
 import '../../models/scheduled_dinner.dart';
 import '../../theme/app_theme.dart';
 import 'date_picker_calendar_sheet.dart';
@@ -26,6 +27,7 @@ class DayPickerSheet extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final days = [for (var i = 0; i < daysAhead; i++) today.add(Duration(days: i))];
+    final colors = AppColors.of(context);
 
     return AnimatedBuilder(
       animation: scheduleController,
@@ -35,14 +37,14 @@ class DayPickerSheet extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text('Add to schedule', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 16)),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(tr(context, 'dayPicker.title'), style: TextStyle(fontWeight: FontWeight.w800, color: colors.ink, fontSize: 16)),
               ),
               Expanded(
                 child: ListView.separated(
                   itemCount: days.length + 1,
-                  separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.line),
+                  separatorBuilder: (context, index) => Divider(height: 1, color: colors.line),
                   itemBuilder: (context, index) {
                     if (index == days.length) {
                       return Padding(
@@ -50,7 +52,7 @@ class DayPickerSheet extends StatelessWidget {
                         child: TextButton(
                           key: const Key('day-picker-custom-date'),
                           onPressed: () => _pickCustomDate(context, today),
-                          child: const Text('Pick a different date...'),
+                          child: Text(tr(context, 'dayPicker.pickDifferentDate')),
                         ),
                       );
                     }
@@ -96,12 +98,13 @@ class _DayRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheduled = dinner;
+    final colors = AppColors.of(context);
     return ListTile(
       key: Key('day-picker-option-${day.toIso8601String()}'),
       onTap: onTap,
       leading: _StatusDot(key: Key('day-picker-dot-${day.toIso8601String()}'), planned: scheduled != null),
       title: Text(
-        isToday ? 'Tonight' : '${_weekdayNames[day.weekday - 1]}, ${_monthAbbreviations[day.month - 1]} ${day.day}',
+        isToday ? tr(context, 'dayPicker.tonight') : '${_weekdayNames[day.weekday - 1]}, ${_monthAbbreviations[day.month - 1]} ${day.day}',
         style: TextStyle(fontWeight: isToday ? FontWeight.w800 : FontWeight.w600),
       ),
       subtitle: scheduled == null
@@ -110,13 +113,13 @@ class _DayRow extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(scheduled.type == DinnerType.homeCooked ? Icons.soup_kitchen_outlined : Icons.restaurant_outlined,
-                    size: 14, color: AppColors.coralDark),
+                    size: 14, color: colors.coralDark),
                 const SizedBox(width: 4),
                 Flexible(child: Text(scheduled.title, overflow: TextOverflow.ellipsis)),
               ],
             ),
       trailing: scheduled != null
-          ? const Text('Already planned', key: Key('day-picker-already-planned'), style: TextStyle(color: AppColors.muted, fontSize: 11))
+          ? Text(tr(context, 'dayPicker.alreadyPlanned'), key: const Key('day-picker-already-planned'), style: TextStyle(color: colors.muted, fontSize: 11))
           : null,
     );
   }
@@ -131,6 +134,7 @@ class _StatusDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return SizedBox(
       width: 24,
       height: 24,
@@ -140,8 +144,8 @@ class _StatusDot extends StatelessWidget {
           height: 12,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: planned ? AppColors.coral : Colors.transparent,
-            border: Border.all(color: planned ? AppColors.coral : AppColors.line, width: 1.5),
+            color: planned ? colors.coral : Colors.transparent,
+            border: Border.all(color: planned ? colors.coral : colors.line, width: 1.5),
           ),
         ),
       ),

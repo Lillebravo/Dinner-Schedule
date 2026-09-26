@@ -41,7 +41,7 @@ class SchedulePeriodHeader extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.ink),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.of(context).ink),
               ),
             ),
           ),

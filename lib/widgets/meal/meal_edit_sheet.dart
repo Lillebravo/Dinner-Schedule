@@ -70,6 +70,7 @@ class _MealEditSheetState extends State<MealEditSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final ink = AppColors.of(context).ink;
     return Padding(
       padding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: MediaQuery.of(context).viewInsets.bottom + 24),
       child: SingleChildScrollView(
@@ -77,7 +78,7 @@ class _MealEditSheetState extends State<MealEditSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(widget.meal.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.ink)),
+            Text(widget.meal.name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: ink)),
             const SizedBox(height: 16),
             TextField(
               key: const Key('cook-time-input'),
@@ -86,7 +87,7 @@ class _MealEditSheetState extends State<MealEditSheet> {
               decoration: const InputDecoration(labelText: 'Time to cook (minutes)', border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
             ),
             const SizedBox(height: 16),
-            const Text('Tags', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink)),
+            Text('Tags', style: TextStyle(fontWeight: FontWeight.w800, color: ink)),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -102,7 +103,7 @@ class _MealEditSheetState extends State<MealEditSheet> {
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Ingredients', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink)),
+            Text('Ingredients', style: TextStyle(fontWeight: FontWeight.w800, color: ink)),
             const SizedBox(height: 8),
             for (var i = 0; i < _ingredientControllers.length; i++)
               Padding(
@@ -127,7 +128,7 @@ class _MealEditSheetState extends State<MealEditSheet> {
               label: const Text('Add ingredient'),
             ),
             const SizedBox(height: 16),
-            const Text('Instructions', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink)),
+            Text('Instructions', style: TextStyle(fontWeight: FontWeight.w800, color: ink)),
             const SizedBox(height: 8),
             TextField(
               key: const Key('instructions-input'),

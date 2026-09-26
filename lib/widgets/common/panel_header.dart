@@ -24,7 +24,7 @@ class PanelHeader extends StatelessWidget {
             children: [
               EyebrowLabel(eyebrow),
               const SizedBox(height: 6),
-              Text(title, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.ink)),
+              Text(title, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.of(context).ink)),
             ],
           ),
         ),

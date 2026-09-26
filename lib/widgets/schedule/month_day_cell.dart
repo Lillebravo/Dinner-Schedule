@@ -27,6 +27,7 @@ class MonthDayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return DragTarget<DinnerDragData>(
       onWillAcceptWithDetails: (details) => details.data.day != day,
       onAcceptWithDetails: (details) => onDropDinner(details.data),
@@ -43,8 +44,8 @@ class MonthDayCell extends StatelessWidget {
             margin: const EdgeInsets.all(2),
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              border: Border.all(color: isToday ? AppColors.coral : AppColors.line, width: isToday ? 2 : 0.5),
-              color: highlighted ? AppColors.coral.withValues(alpha: 0.08) : Colors.transparent,
+              border: Border.all(color: isToday ? colors.coral : colors.line, width: isToday ? 2 : 0.5),
+              color: highlighted ? colors.coral.withValues(alpha: 0.08) : Colors.transparent,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,14 +53,14 @@ class MonthDayCell extends StatelessWidget {
               children: [
                 Text(
                   '${day.day}',
-                  style: TextStyle(fontWeight: FontWeight.w800, color: inCurrentMonth ? AppColors.ink : AppColors.line),
+                  style: TextStyle(fontWeight: FontWeight.w800, color: inCurrentMonth ? colors.ink : colors.line),
                 ),
                 if (scheduled != null) ...[
                   const SizedBox(height: 4),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(color: AppColors.background, border: Border.all(color: AppColors.line)),
+                    decoration: BoxDecoration(color: colors.background, border: Border.all(color: colors.line)),
                     child: Text(
                       scheduled.title,
                       maxLines: 1,
@@ -83,7 +84,7 @@ class MonthDayCell extends StatelessWidget {
             child: Container(
               width: 120,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.line)),
+              decoration: BoxDecoration(color: colors.surface, border: Border.all(color: colors.line)),
               child: Text(scheduled.title, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ),

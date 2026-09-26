@@ -52,6 +52,7 @@ class _DatePickerCalendarSheetState extends State<DatePickerCalendarSheet> {
     final days = CalendarMath.monthGrid(_focusedMonth);
     final today = DateTime.now();
     final todayNormalized = DateTime(today.year, today.month, today.day);
+    final colors = AppColors.of(context);
 
     return AnimatedBuilder(
       animation: widget.scheduleController,
@@ -72,7 +73,7 @@ class _DatePickerCalendarSheetState extends State<DatePickerCalendarSheet> {
                   ),
                   Text(
                     '${_monthNames[_focusedMonth.month - 1]} ${_focusedMonth.year}',
-                    style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.w800, color: colors.ink, fontSize: 16),
                   ),
                   IconButton(
                     key: const Key('date-picker-next-month'),
@@ -87,7 +88,7 @@ class _DatePickerCalendarSheetState extends State<DatePickerCalendarSheet> {
                   for (final label in _weekdayHeaders)
                     Expanded(
                       child: Center(
-                        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.muted, fontSize: 12)),
+                        child: Text(label, style: TextStyle(fontWeight: FontWeight.w700, color: colors.muted, fontSize: 12)),
                       ),
                     ),
                 ],
@@ -138,11 +139,12 @@ class _DateCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Padding(
       padding: const EdgeInsets.all(2),
       child: Material(
         color: Colors.transparent,
-        shape: CircleBorder(side: BorderSide(color: isToday ? AppColors.coral : Colors.transparent, width: 1.5)),
+        shape: CircleBorder(side: BorderSide(color: isToday ? colors.coral : Colors.transparent, width: 1.5)),
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onTap,
@@ -153,13 +155,13 @@ class _DateCell extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
-                  color: onTap == null ? AppColors.line : AppColors.ink,
+                  color: onTap == null ? colors.line : colors.ink,
                 ),
               ),
               if (planned)
-                const Positioned(
+                Positioned(
                   bottom: 2,
-                  child: Icon(Icons.check_circle, size: 11, color: AppColors.coral),
+                  child: Icon(Icons.check_circle, size: 11, color: colors.coral),
                 ),
             ],
           ),

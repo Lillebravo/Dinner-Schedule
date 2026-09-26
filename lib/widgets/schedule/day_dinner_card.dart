@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
 import '../../models/scheduled_dinner.dart';
 import '../../theme/app_theme.dart';
 
@@ -39,6 +40,7 @@ class DayDinnerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return DragTarget<DinnerDragData>(
       onWillAcceptWithDetails: (details) => details.data.day != day,
       onAcceptWithDetails: (details) => onDropDinner(details.data),
@@ -48,8 +50,8 @@ class DayDinnerCard extends StatelessWidget {
           key: Key('day-card-${day.toIso8601String()}'),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: isToday ? AppColors.coral : AppColors.line, width: isToday ? 2 : 1),
-            color: highlighted ? AppColors.coral.withValues(alpha: 0.08) : null,
+            border: Border.all(color: isToday ? colors.coral : colors.line, width: isToday ? 2 : 1),
+            color: highlighted ? colors.coral.withValues(alpha: 0.08) : null,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,8 +61,8 @@ class DayDinnerCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_weekdayAbbreviations[day.weekday - 1], style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink)),
-                    Text('${day.day}', style: const TextStyle(color: AppColors.muted)),
+                    Text(_weekdayAbbreviations[day.weekday - 1], style: TextStyle(fontWeight: FontWeight.w800, color: colors.ink)),
+                    Text('${day.day}', style: TextStyle(color: colors.muted)),
                   ],
                 ),
               ),
@@ -84,13 +86,13 @@ class DayDinnerCard extends StatelessWidget {
             key: Key('add-meal-${day.toIso8601String()}'),
             onPressed: onAddMeal,
             icon: const Icon(Icons.restaurant_menu, size: 18),
-            label: const Text('Add meal'),
+            label: Text(tr(context, 'schedule.addMealButton')),
           ),
           OutlinedButton.icon(
             key: Key('add-eating-out-${day.toIso8601String()}'),
             onPressed: onAddEatingOut,
             icon: const Icon(Icons.restaurant_outlined, size: 18),
-            label: const Text('Eat out'),
+            label: Text(tr(context, 'schedule.eatOutButton')),
           ),
         ],
       );
@@ -109,8 +111,8 @@ class DayDinnerCard extends StatelessWidget {
           IconButton(
             key: Key('clear-dinner-${day.toIso8601String()}'),
             icon: const Icon(Icons.close, size: 18),
-            color: AppColors.muted,
-            tooltip: 'Clear dinner',
+            color: AppColors.of(context).muted,
+            tooltip: tr(context, 'schedule.clearDinner'),
             onPressed: onClear,
           ),
         ],
@@ -127,16 +129,17 @@ class _DinnerChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Opacity(
       opacity: faded ? 0.3 : 1,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.line)),
+        decoration: BoxDecoration(color: colors.surface, border: Border.all(color: colors.line)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(dinner.type == DinnerType.homeCooked ? Icons.soup_kitchen_outlined : Icons.restaurant_outlined,
-                size: 16, color: AppColors.coralDark),
+                size: 16, color: colors.coralDark),
             const SizedBox(width: 8),
             Flexible(child: Text(dinner.title, style: const TextStyle(fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis)),
           ],

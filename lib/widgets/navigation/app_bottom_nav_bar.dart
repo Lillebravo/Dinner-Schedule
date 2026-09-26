@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
+
 /// The app's bottom tab bar: eating-out wheel, home meals list, home-cooking
 /// wheel (center), shopping list, and meal planning.
 class AppBottomNavBar extends StatelessWidget {
@@ -13,36 +15,36 @@ class AppBottomNavBar extends StatelessWidget {
     return NavigationBar(
       selectedIndex: selectedIndex,
       onDestinationSelected: onSelect,
-      destinations: const [
+      destinations: [
         NavigationDestination(
-          key: Key('nav-eating-out'),
-          icon: Icon(Icons.restaurant_outlined),
-          selectedIcon: Icon(Icons.restaurant),
-          label: 'Eat Out',
+          key: const Key('nav-eating-out'),
+          icon: const Icon(Icons.restaurant_outlined),
+          selectedIcon: const Icon(Icons.restaurant),
+          label: tr(context, 'nav.eatOut'),
         ),
         NavigationDestination(
-          key: Key('nav-home-list'),
-          icon: Icon(Icons.list_alt_outlined),
-          selectedIcon: Icon(Icons.list_alt),
-          label: 'Meals',
+          key: const Key('nav-home-list'),
+          icon: const Icon(Icons.list_alt_outlined),
+          selectedIcon: const Icon(Icons.list_alt),
+          label: tr(context, 'nav.meals'),
         ),
         NavigationDestination(
-          key: Key('nav-home-wheel'),
-          icon: Icon(Icons.casino_outlined),
-          selectedIcon: Icon(Icons.casino),
-          label: 'Spin',
+          key: const Key('nav-home-wheel'),
+          icon: const Icon(Icons.casino_outlined),
+          selectedIcon: const Icon(Icons.casino),
+          label: tr(context, 'nav.spin'),
         ),
         NavigationDestination(
-          key: Key('nav-shopping-list'),
-          icon: Icon(Icons.shopping_cart_outlined),
-          selectedIcon: Icon(Icons.shopping_cart),
-          label: 'Shopping',
+          key: const Key('nav-shopping-list'),
+          icon: const Icon(Icons.shopping_cart_outlined),
+          selectedIcon: const Icon(Icons.shopping_cart),
+          label: tr(context, 'nav.shopping'),
         ),
         NavigationDestination(
-          key: Key('nav-meal-plan'),
-          icon: Icon(Icons.calendar_month_outlined),
-          selectedIcon: Icon(Icons.calendar_month),
-          label: 'Plan',
+          key: const Key('nav-meal-plan'),
+          icon: const Icon(Icons.calendar_month_outlined),
+          selectedIcon: const Icon(Icons.calendar_month),
+          label: tr(context, 'nav.plan'),
         ),
       ],
     );

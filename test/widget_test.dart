@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dishdash/controllers/food_list_controller.dart';
 import 'package:dishdash/controllers/meal_list_controller.dart';
 import 'package:dishdash/controllers/meal_schedule_controller.dart';
+import 'package:dishdash/l10n/app_locale.dart';
+import 'package:dishdash/l10n/locale_controller.dart';
 import 'package:dishdash/main.dart';
 import 'package:dishdash/pages/eating_out_wheel_page.dart';
 import 'package:dishdash/pages/home_meals_list_page.dart';
@@ -57,7 +59,7 @@ void main() {
       await tester.pumpWidget(const DishDashApp());
       await _goTo(tester, 'nav-eating-out');
 
-      await tester.enterText(inTab(find.byKey(const Key('food-input'))), 'sushi bar');
+      await tester.enterText(inTab(find.byKey(const Key('food-input'))), 'sushi');
       await tester.tap(inTab(find.byKey(const Key('add-food-button'))));
       await tester.pump();
 
@@ -69,16 +71,17 @@ void main() {
       await tester.pumpWidget(const DishDashApp());
       await _goTo(tester, 'nav-eating-out');
 
-      await tester.tap(inTab(find.descendant(
-        of: find.byKey(const ValueKey('food-item-Taco Truck')),
-        matching: find.byIcon(Icons.close),
-      )));
-      await tester.pump();
-      await tester.tap(inTab(find.descendant(
-        of: find.byKey(const ValueKey('food-item-Pizzeria')),
-        matching: find.byIcon(Icons.close),
-      )));
-      await tester.pump();
+      // Default list has 14 meals; remove all but 2 to hit the minimum.
+      for (final name in [
+        'Burgers', 'Pizza', 'Tacos', 'Ramen', 'Thai',
+        'Italian', 'Chinese', 'Indian', 'Korean', 'Kebab', 'Steakhouse', 'Salad',
+      ]) {
+        await tester.tap(inTab(find.descendant(
+          of: find.byKey(ValueKey('food-item-$name')),
+          matching: find.byIcon(Icons.close),
+        )));
+        await tester.pump();
+      }
 
       final remainingRemoveButtons = tester.widgetList<IconButton>(
         inTab(find.ancestor(of: find.byIcon(Icons.close), matching: find.byType(IconButton))),
@@ -91,6 +94,7 @@ void main() {
       await tester.pumpWidget(const DishDashApp());
       await _goTo(tester, 'nav-eating-out');
 
+      await tester.ensureVisible(inTab(find.byKey(const Key('spin-button'))));
       await tester.tap(inTab(find.byKey(const Key('spin-button'))));
       await tester.pump();
       expect(inTab(find.text('Spinning...')), findsOneWidget);
@@ -280,14 +284,17 @@ void main() {
 
     testWidgets('monthly view does not overflow on a narrow phone-width layout', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              width: 360,
-              child: MealPlanPage(
-                scheduleController: MealScheduleController(),
-                mealListController: MealListController(const ['Tacos', 'Pasta']),
-                foodListController: FoodListController(const ['Sushi Bar', 'Burger Place']),
+        AppLocale(
+          controller: LocaleController(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: SizedBox(
+                width: 360,
+                child: MealPlanPage(
+                  scheduleController: MealScheduleController(),
+                  mealListController: MealListController(const ['Tacos', 'Pasta']),
+                  foodListController: FoodListController(const ['Sushi Bar', 'Burger Place']),
+                ),
               ),
             ),
           ),
@@ -307,14 +314,17 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
-            child: Scaffold(
-              body: MealPlanPage(
-                scheduleController: MealScheduleController(),
-                mealListController: MealListController(const ['Tacos', 'Pasta']),
-                foodListController: FoodListController(const ['Sushi Bar', 'Burger Place']),
+        AppLocale(
+          controller: LocaleController(),
+          child: MaterialApp(
+            home: MediaQuery(
+              data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
+              child: Scaffold(
+                body: MealPlanPage(
+                  scheduleController: MealScheduleController(),
+                  mealListController: MealListController(const ['Tacos', 'Pasta']),
+                  foodListController: FoodListController(const ['Sushi Bar', 'Burger Place']),
+                ),
               ),
             ),
           ),
@@ -418,7 +428,7 @@ void main() {
       await tester.tap(find.byKey(const Key('add-to-schedule-button')));
       await tester.pumpAndSettle();
 
-      expect(dotColor(), isNot(AppColors.coral));
+      expect(dotColor(), isNot(AppColors.light.coral));
 
       await tester.tap(find.text('Tonight'));
       await tester.pumpAndSettle();
@@ -427,7 +437,7 @@ void main() {
       await tester.tap(find.byKey(const Key('add-to-schedule-button')));
       await tester.pumpAndSettle();
 
-      expect(dotColor(), AppColors.coral);
+      expect(dotColor(), AppColors.light.coral);
     });
 
     testWidgets('the day picker\'s custom date fallback has no manual keyboard entry option', (tester) async {

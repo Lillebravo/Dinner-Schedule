@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/meal_schedule_controller.dart';
+import '../../l10n/app_locale.dart';
 import '../../models/scheduled_dinner.dart';
 import '../../theme/app_theme.dart';
 import 'day_picker_sheet.dart';
@@ -32,7 +33,7 @@ class AddToScheduleButton extends StatelessWidget {
     if (day == null) return;
     scheduleController.setDinner(day, ScheduledDinner(title: title, type: type));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added $title to the schedule.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr(context, 'schedule.added', {'title': title}))));
     }
   }
 
@@ -42,15 +43,15 @@ class AddToScheduleButton extends StatelessWidget {
       return IconButton(
         onPressed: () => _addToSchedule(context),
         icon: const Icon(Icons.calendar_today_outlined, size: 20),
-        color: AppColors.muted,
-        tooltip: 'Add "$title" to schedule',
+        color: AppColors.of(context).muted,
+        tooltip: tr(context, 'schedule.addTooltip', {'title': title}),
       );
     }
     return TextButton.icon(
       key: const Key('add-to-schedule-button'),
       onPressed: () => _addToSchedule(context),
       icon: const Icon(Icons.calendar_today_outlined, size: 18),
-      label: const Text('Add to schedule'),
+      label: Text(tr(context, 'schedule.addButton')),
     );
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
-/// The app's dark, square elevated button style, shared by the spin and add actions.
+/// The app's primary action button style - matches the OutlinedButton look used
+/// for the meal-planner's "Add meal"/"Eat out" buttons (rather than a filled
+/// ElevatedButton), since that reads correctly in both light and dark mode via
+/// the theme's ColorScheme instead of a hardcoded background color.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
@@ -17,13 +18,9 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return OutlinedButton(
       onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.ink,
-        foregroundColor: Colors.white,
-        disabledBackgroundColor: AppColors.ink.withValues(alpha: 0.55),
-        disabledForegroundColor: Colors.white,
+      style: OutlinedButton.styleFrom(
         padding: padding,
         shape: const RoundedRectangleBorder(),
       ),
@@ -31,3 +28,4 @@ class PrimaryButton extends StatelessWidget {
     );
   }
 }
+

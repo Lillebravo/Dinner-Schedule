@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/meal_schedule_controller.dart';
+import '../../l10n/app_locale.dart';
 import '../../models/scheduled_dinner.dart';
 import '../../theme/app_theme.dart';
 import '../common/primary_button.dart';
@@ -29,6 +30,7 @@ class DayDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return AnimatedBuilder(
       animation: scheduleController,
       builder: (context, _) {
@@ -42,14 +44,14 @@ class DayDetailSheet extends StatelessWidget {
               children: [
                 Text(
                   '${_weekdayNames[day.weekday - 1]}, ${_monthNames[day.month - 1]} ${day.day}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.ink),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: colors.ink),
                 ),
                 const SizedBox(height: 16),
                 if (dinner != null) ...[
                   Row(
                     children: [
                       Icon(dinner.type == DinnerType.homeCooked ? Icons.soup_kitchen_outlined : Icons.restaurant_outlined,
-                          color: AppColors.coralDark),
+                          color: colors.coralDark),
                       const SizedBox(width: 8),
                       Expanded(child: Text(dinner.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16))),
                     ],
@@ -61,17 +63,17 @@ class DayDetailSheet extends StatelessWidget {
                       scheduleController.clearDinner(day);
                       Navigator.of(context).pop();
                     },
-                    child: const Text('Clear dinner'),
+                    child: Text(tr(context, 'schedule.clearDinner')),
                   ),
                 ] else
-                  const Text('Nothing scheduled yet.', style: TextStyle(color: AppColors.muted)),
+                  Text('Nothing scheduled yet.', style: TextStyle(color: colors.muted)),
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
                       child: PrimaryButton(
                         key: const Key('day-detail-add-meal'),
-                        label: 'Add meal',
+                        label: tr(context, 'schedule.addMealButton'),
                         onPressed: () {
                           Navigator.of(context).pop();
                           onAddMeal();
@@ -86,7 +88,7 @@ class DayDetailSheet extends StatelessWidget {
                           Navigator.of(context).pop();
                           onAddEatingOut();
                         },
-                        child: const Text('Eat out'),
+                        child: Text(tr(context, 'schedule.eatOutButton')),
                       ),
                     ),
                   ],

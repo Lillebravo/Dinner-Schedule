@@ -14,7 +14,7 @@ class CountBadge extends StatelessWidget {
       width: 42,
       height: 42,
       alignment: Alignment.center,
-      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.line)),
+      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.of(context).line)),
       child: Text('$count', style: const TextStyle(fontWeight: FontWeight.w800)),
     );
   }

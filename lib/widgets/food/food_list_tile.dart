@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/food_name_translations.dart';
 import '../../models/food.dart';
 import '../../theme/app_theme.dart';
 
@@ -15,14 +16,14 @@ class FoodListTile extends StatelessWidget {
     return Container(
       key: ValueKey('food-item-${food.name}'),
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.line))),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.of(context).line))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(food.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(translateFoodName(context, food.name), style: const TextStyle(fontWeight: FontWeight.w700)),
           IconButton(
             icon: const Icon(Icons.close),
-            color: AppColors.muted,
+            color: AppColors.of(context).muted,
             tooltip: 'Remove ${food.name}',
             onPressed: onRemove,
           ),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../controllers/food_list_controller.dart';
 import '../controllers/meal_schedule_controller.dart';
 import '../controllers/wheel_spin_controller.dart';
+import '../l10n/app_locale.dart';
+import '../l10n/food_name_translations.dart';
 import '../models/scheduled_dinner.dart';
 import '../widgets/common/section_intro.dart';
 import '../widgets/food/food_panel.dart';
@@ -69,12 +71,12 @@ class _EatingOutWheelPageState extends State<EatingOutWheelPage> with SingleTick
           builder: (context, constraints) {
             final isNarrow = constraints.maxWidth < 840;
             final stage = WheelStage(
-              entries: [for (final food in foods) food.name],
+              entries: [for (final food in foods) translateFoodName(context, food.name)],
               rotation: _spinController.rotationAnimation,
               spinning: _spinController.spinning,
               onSpin: _spin,
-              selectedEntry: _selectedFood,
-              emptyHint: 'Add at least two places to spin the wheel.',
+              selectedEntry: _selectedFood == null ? null : translateFoodName(context, _selectedFood!),
+              emptyHint: tr(context, 'eatingOut.emptyHint'),
               scheduleAction: _selectedFood == null
                   ? null
                   : AddToScheduleButton(
@@ -94,10 +96,10 @@ class _EatingOutWheelPageState extends State<EatingOutWheelPage> with SingleTick
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SectionIntro(
-                  eyebrow: 'DINING OUT',
-                  headline: 'Let the wheel pick where to eat.',
-                  subtitle: 'Add the places you are craving, give it a spin, and skip the back-and-forth.',
+                SectionIntro(
+                  eyebrow: tr(context, 'eatingOut.eyebrow'),
+                  headline: tr(context, 'eatingOut.headline'),
+                  subtitle: tr(context, 'eatingOut.subtitle'),
                 ),
                 const SizedBox(height: 40),
                 isNarrow

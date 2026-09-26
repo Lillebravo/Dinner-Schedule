@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
 import 'primary_button.dart';
 
 /// Text field + submit button for adding a new named entry (a food, a meal, ...).
@@ -39,7 +40,7 @@ class EntryInputRow extends StatelessWidget {
         const SizedBox(width: 8),
         PrimaryButton(
           key: const Key('add-food-button'),
-          label: 'Add',
+          label: tr(context, 'common.add'),
           onPressed: onSubmit,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         ),

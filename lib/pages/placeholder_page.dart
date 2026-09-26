@@ -29,7 +29,7 @@ class PlaceholderPage extends StatelessWidget {
           children: [
             SectionIntro(eyebrow: eyebrow, headline: title, subtitle: subtitle),
             const SizedBox(height: 40),
-            Center(child: Icon(icon, size: 72, color: AppColors.line)),
+            Center(child: Icon(icon, size: 72, color: AppColors.of(context).line)),
           ],
         ),
       ),

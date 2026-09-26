@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
 import '../../theme/app_theme.dart';
 import '../common/primary_button.dart';
 import 'spin_result_label.dart';
@@ -40,11 +41,11 @@ class WheelStage extends StatelessWidget {
             WheelDisplay(foods: entries, rotation: rotation, size: wheelSize),
             const SizedBox(height: 28),
             if (entries.length < 2 && emptyHint != null)
-              Text(emptyHint!, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.muted))
+              Text(emptyHint!, textAlign: TextAlign.center, style: TextStyle(color: AppColors.of(context).muted))
             else
               PrimaryButton(
                 key: const Key('spin-button'),
-                label: spinning ? 'Spinning...' : 'Spin the wheel',
+                label: spinning ? tr(context, 'wheel.spinning') : tr(context, 'wheel.spin'),
                 onPressed: spinning ? null : onSpin,
               ),
             const SizedBox(height: 20),

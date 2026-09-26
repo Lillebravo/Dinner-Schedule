@@ -43,7 +43,7 @@ class _MonthPickerSheetState extends State<MonthPickerSheet> {
                   onPressed: () => setState(() => _year--),
                   icon: const Icon(Icons.chevron_left),
                 ),
-                Text('$_year', style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink, fontSize: 16)),
+                Text('$_year', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.of(context).ink, fontSize: 16)),
                 IconButton(
                   key: const Key('month-page-next'),
                   onPressed: () => setState(() => _year++),

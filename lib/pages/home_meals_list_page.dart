@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/meal_list_controller.dart';
 import '../controllers/meal_schedule_controller.dart';
+import '../l10n/app_locale.dart';
 import '../models/meal.dart';
 import '../models/scheduled_dinner.dart';
 import '../theme/app_theme.dart';
@@ -74,6 +75,7 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
     final meals = widget.controller.meals;
     final canRemove = !widget.controller.isAtMinimum;
     final reorderable = widget.controller.sortOption == MealSortOption.custom && widget.controller.activeFilters.isEmpty;
+    final colors = AppColors.of(context);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(28, 12, 28, 28),
@@ -82,12 +84,12 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PanelHeader(eyebrow: 'HOME COOKING', title: 'Your meals', trailing: CountBadge(count: meals.length)),
+            PanelHeader(eyebrow: tr(context, 'homeMeals.eyebrow'), title: tr(context, 'homeMeals.title'), trailing: CountBadge(count: meals.length)),
             const SizedBox(height: 24),
-            EntryInputRow(controller: _inputController, onSubmit: _addMeal, hintText: 'Add a home-cooked meal'),
+            EntryInputRow(controller: _inputController, onSubmit: _addMeal, hintText: tr(context, 'homeMeals.addHint')),
             if (widget.controller.error != null) ...[
               const SizedBox(height: 6),
-              Text(widget.controller.error!, key: const Key('field-error'), style: const TextStyle(color: AppColors.errorText, fontSize: 12)),
+              Text(widget.controller.error!, key: const Key('field-error'), style: TextStyle(color: colors.errorText, fontSize: 12)),
             ],
             const SizedBox(height: 8),
             Row(
@@ -98,7 +100,7 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
             ),
             const SizedBox(height: 4),
             if (meals.isEmpty)
-              const Text('No meals match your filters.', key: Key('no-meals-match'), style: TextStyle(color: AppColors.muted))
+              Text(tr(context, 'homeMeals.noMatch'), key: const Key('no-meals-match'), style: TextStyle(color: colors.muted))
             else if (reorderable)
               ReorderableListView(
                 shrinkWrap: true,
@@ -141,9 +143,9 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
                   ),
                 ),
             const SizedBox(height: 12),
-            const Text(
-              'Keep at least two meals on the list. Drag to reorder while sorted by "Custom order". Tap a meal to add ingredients and instructions.',
-              style: TextStyle(color: AppColors.muted, fontSize: 12),
+            Text(
+              tr(context, 'homeMeals.footer'),
+              style: TextStyle(color: colors.muted, fontSize: 12),
             ),
           ],
         ),

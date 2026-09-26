@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
 import '../../models/food.dart';
 import '../../theme/app_theme.dart';
 import '../common/count_badge.dart';
@@ -17,9 +18,9 @@ class FoodPanel extends StatelessWidget {
     required this.onRemove,
     required this.canRemove,
     this.error,
-    this.eyebrow = 'PLACES TO EAT',
-    this.title = 'Where should we eat?',
-    this.inputHint = 'Try Sushi Palace',
+    this.eyebrow,
+    this.title,
+    this.inputHint,
   });
 
   final List<Food> foods;
@@ -28,26 +29,30 @@ class FoodPanel extends StatelessWidget {
   final ValueChanged<Food> onRemove;
   final bool canRemove;
   final String? error;
-  final String eyebrow;
-  final String title;
-  final String inputHint;
+  final String? eyebrow;
+  final String? title;
+  final String? inputHint;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PanelHeader(eyebrow: eyebrow, title: title, trailing: CountBadge(count: foods.length)),
+        PanelHeader(
+          eyebrow: eyebrow ?? tr(context, 'foodPanel.eyebrow'),
+          title: title ?? tr(context, 'foodPanel.title'),
+          trailing: CountBadge(count: foods.length),
+        ),
         const SizedBox(height: 24),
-        EntryInputRow(controller: inputController, onSubmit: onAdd, hintText: inputHint),
+        EntryInputRow(controller: inputController, onSubmit: onAdd, hintText: inputHint ?? tr(context, 'foodPanel.inputHint')),
         if (error != null) ...[
           const SizedBox(height: 6),
-          Text(error!, key: const Key('field-error'), style: const TextStyle(color: AppColors.errorText, fontSize: 12)),
+          Text(error!, key: const Key('field-error'), style: TextStyle(color: AppColors.of(context).errorText, fontSize: 12)),
         ],
         const SizedBox(height: 12),
         for (final food in foods) FoodListTile(food: food, onRemove: canRemove ? () => onRemove(food) : null),
         const SizedBox(height: 12),
-        const Text('Keep at least two choices on the wheel.', style: TextStyle(color: AppColors.muted, fontSize: 12)),
+        Text(tr(context, 'foodPanel.keepAtLeastTwo'), style: TextStyle(color: AppColors.of(context).muted, fontSize: 12)),
       ],
     );
   }
