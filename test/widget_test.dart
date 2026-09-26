@@ -305,6 +305,86 @@ void main() {
       expect(inTab(find.text('Tortillas')), findsNothing);
       expect(inTab(find.textContaining('No home-cooked meals scheduled')), findsOneWidget);
     });
+
+    testWidgets('supports adding manual items, cycling sort, and hiding bought items', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-shopping-list');
+
+      for (final name in ['Bananas', 'Apples', 'Zucchini']) {
+        await tester.enterText(inTab(find.byKey(const Key('food-input'))), name);
+        await tester.tap(inTab(find.byKey(const Key('add-food-button'))));
+        await tester.pump();
+      }
+
+      expect(inTab(find.text('Added manually')), findsNWidgets(3));
+
+      List<String> titles() =>
+          tester.widgetList<CheckboxListTile>(inTab(find.byType(CheckboxListTile))).map((tile) => (tile.title as Text).data!).toList();
+
+      // No sort applied yet: natural (insertion) order.
+      expect(titles(), ['Bananas', 'Apples', 'Zucchini']);
+
+      await tester.tap(inTab(find.byKey(const Key('shopping-sort-button'))));
+      await tester.pumpAndSettle();
+
+      // First tap on "Name": ascending.
+      await tester.tap(find.byKey(const Key('shopping-sort-option-name')));
+      await tester.pump();
+      expect(titles(), ['Apples', 'Bananas', 'Zucchini']);
+
+      // Second tap: descending.
+      await tester.tap(find.byKey(const Key('shopping-sort-option-name')));
+      await tester.pump();
+      expect(titles(), ['Zucchini', 'Bananas', 'Apples']);
+
+      // Third tap: back to no sort (natural order).
+      await tester.tap(find.byKey(const Key('shopping-sort-option-name')));
+      await tester.pump();
+      expect(titles(), ['Bananas', 'Apples', 'Zucchini']);
+
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      // Check "Zucchini" (manual-2) off, then hide bought items.
+      await tester.tap(inTab(find.byKey(const Key('shopping-item-manual-2'))));
+      await tester.pump();
+      await tester.tap(inTab(find.byKey(const Key('hide-bought-filter'))));
+      await tester.pump();
+      expect(inTab(find.text('Zucchini')), findsNothing);
+      expect(inTab(find.text('Apples')), findsOneWidget);
+
+      // Un-hide, then remove "Apples" (manual-1) directly.
+      await tester.tap(inTab(find.byKey(const Key('hide-bought-filter'))));
+      await tester.pump();
+      await tester.tap(inTab(find.byKey(const Key('shopping-item-remove-manual-1'))));
+      await tester.pump();
+      expect(inTab(find.text('Apples')), findsNothing);
+    });
+
+    testWidgets('done shopping clears checked items off the list', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-shopping-list');
+
+      await tester.enterText(inTab(find.byKey(const Key('food-input'))), 'Napkins');
+      await tester.tap(inTab(find.byKey(const Key('add-food-button'))));
+      await tester.pump();
+
+      final disabled = tester.widget<TextButton>(inTab(find.byKey(const Key('finish-shopping-button'))));
+      expect(disabled.onPressed, isNull);
+
+      await tester.tap(inTab(find.byKey(const Key('shopping-item-manual-0'))));
+      await tester.pump();
+
+      final enabled = tester.widget<TextButton>(inTab(find.byKey(const Key('finish-shopping-button'))));
+      expect(enabled.onPressed, isNotNull);
+
+      await tester.tap(inTab(find.byKey(const Key('finish-shopping-button'))));
+      await tester.pumpAndSettle();
+
+      expect(inTab(find.text('Napkins')), findsNothing);
+    });
   });
 
   group('meal planning', () {

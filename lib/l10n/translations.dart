@@ -67,6 +67,11 @@ const Map<String, Map<String, String>> kTranslations = {
     'shopping.subtitle': 'Automatically built from the home-cooked meals scheduled this week.',
     'shopping.empty': 'No home-cooked meals scheduled this week yet. Add one in Plan to build a shopping list.',
     'shopping.forMeals': 'For {meals}',
+    'shopping.addItemHint': 'Add an extra item',
+    'shopping.addedManually': 'Added manually',
+    'shopping.hideBought': 'Hide bought items',
+    'shopping.doneShopping': 'Done shopping',
+    'shopping.allBought': 'Everything on the list is checked off.',
 
     'dayPicker.title': 'Add to schedule',
     'dayPicker.tonight': 'Tonight',
@@ -138,6 +143,11 @@ const Map<String, Map<String, String>> kTranslations = {
     'shopping.subtitle': 'Skapas automatiskt från de hemlagade måltider som är schemalagda den här veckan.',
     'shopping.empty': 'Inga hemlagade måltider schemalagda den här veckan än. Lägg till en under Planera för att skapa en inköpslista.',
     'shopping.forMeals': 'Till {meals}',
+    'shopping.addItemHint': 'Lägg till en extra vara',
+    'shopping.addedManually': 'Tillagd manuellt',
+    'shopping.hideBought': 'Dölj köpta varor',
+    'shopping.doneShopping': 'Klar med handlingen',
+    'shopping.allBought': 'Allt på listan är avbockat.',
 
     'dayPicker.title': 'Lägg till i schemat',
     'dayPicker.tonight': 'Ikväll',
