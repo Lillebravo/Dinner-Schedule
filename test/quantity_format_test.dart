@@ -28,7 +28,13 @@ void main() {
       expect(QuantityFormat.format(50.5, unit: 'G'), '50.5');
       expect(QuantityFormat.format(2, unit: 'kg'), '2');
       expect(QuantityFormat.format(1.5, unit: 'ml'), '1.5');
+      expect(QuantityFormat.format(50.5, unit: 'hg'), '50.5');
+      expect(QuantityFormat.format(50.5, unit: 'HG'), '50.5');
       expect(QuantityFormat.format(1.5, unit: 'cups'), '1\u00bd');
+    });
+
+    test('withUnit joins hg tight against the number, like other metric units', () {
+      expect(QuantityFormat.withUnit(50.5, 'hg'), '50.5hg');
     });
 
     test('withUnit joins metric abbreviations tight against the number', () {

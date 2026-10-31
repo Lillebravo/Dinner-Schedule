@@ -349,6 +349,35 @@ void main() {
       expect(find.textContaining('0.5kg Beef'), findsOneWidget);
     });
 
+    testWidgets('choosing a preconfigured unit from the dropdown still shows hg as a decimal', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(inTab(find.text('Tacos al Pastor')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('ingredient-quantity-0')), '50.5');
+      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Flour');
+
+      // Open the unit dropdown and pick "hg" instead of typing it.
+      await tester.tap(find.byKey(const Key('ingredient-unit-0')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('hg').hitTestable());
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('instructions-input')), 'Serve warm.');
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.byKey(const Key('cooking-mode-Tacos al Pastor'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('cooking-mode-ingredients-toggle')));
+      await tester.pump();
+
+      expect(find.textContaining('50.5hg Flour'), findsOneWidget);
+    });
+
     testWidgets('disables removing below the two-meal minimum', (tester) async {
       _useDesktopViewport(tester);
       await tester.pumpWidget(const DishDashApp());

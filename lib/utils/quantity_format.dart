@@ -10,6 +10,7 @@ class QuantityFormat {
   /// fraction instead (e.g. "50 \u00bdg") looks wrong for metric weights/volumes.
   static const _decimalUnits = {
     'g', 'gram', 'grams',
+    'hg',
     'kg', 'kilo', 'kilos', 'kilogram', 'kilograms',
     'mg', 'milligram', 'milligrams',
     'ml', 'milliliter', 'milliliters', 'millilitre', 'millilitres',

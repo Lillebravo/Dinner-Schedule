@@ -49,6 +49,10 @@ class _IngredientRow {
 }
 
 class _MealEditSheetState extends State<MealEditSheet> {
+  /// Common units offered in the ingredient unit field's dropdown - the field
+  /// still accepts any free-text unit typed in that isn't on this list.
+  static const _unitOptions = ['g', 'hg', 'kg', 'dl', 'cl', 'ml', 'l', 'msk', 'tsk', 'st', 'krm'];
+
   late final List<_IngredientRow> _ingredientRows;
   late final TextEditingController _instructionsController;
   late final TextEditingController _cookTimeController;
@@ -162,7 +166,7 @@ class _MealEditSheetState extends State<MealEditSheet> {
             Text('Ingredients', style: TextStyle(fontWeight: FontWeight.w800, color: ink)),
             const SizedBox(height: 4),
             Text(
-              'Quantities scale with servings in cooking mode. Enter a decimal (0.5) or a fraction (1/2) - leave the amount blank for things like "salt to taste".',
+              'Quantities scale with servings in cooking mode. Enter a decimal (0.5) or a fraction (1/2) - leave the amount blank for things like "salt to taste". Pick a unit from the list or type your own.',
               style: TextStyle(color: AppColors.of(context).muted, fontSize: 12),
             ),
             const SizedBox(height: 8),
@@ -183,12 +187,17 @@ class _MealEditSheetState extends State<MealEditSheet> {
                     ),
                     const SizedBox(width: 8),
                     SizedBox(
-                      width: 72,
-                      child: TextField(
+                      width: 110,
+                      child: DropdownMenu<String>(
                         key: Key('ingredient-unit-$i'),
                         controller: _ingredientRows[i].unit,
-                        decoration:
-                            const InputDecoration(isDense: true, hintText: 'Unit', border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
+                        width: 110,
+                        enableFilter: true,
+                        requestFocusOnTap: true,
+                        hintText: 'Unit',
+                        inputDecorationTheme:
+                            const InputDecorationTheme(isDense: true, border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
+                        dropdownMenuEntries: [for (final unit in _unitOptions) DropdownMenuEntry(value: unit, label: unit)],
                       ),
                     ),
                     const SizedBox(width: 8),
