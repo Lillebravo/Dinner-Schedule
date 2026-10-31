@@ -6,6 +6,7 @@ import '../controllers/meal_schedule_controller.dart';
 import '../l10n/app_locale.dart';
 import '../models/scheduled_dinner.dart';
 import '../theme/app_theme.dart';
+import '../utils/batch_planner.dart';
 import '../utils/calendar_math.dart';
 import '../widgets/common/section_intro.dart';
 import '../widgets/schedule/day_detail_sheet.dart';
@@ -107,6 +108,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
       builder: (context) => DayDetailSheet(
         day: day,
         scheduleController: widget.scheduleController,
+        mealListController: widget.mealListController,
         onAddMeal: () => _pickDinnerOfType(day, DinnerType.homeCooked),
         onAddEatingOut: () => _pickDinnerOfType(day, DinnerType.eatingOut),
       ),
@@ -128,6 +130,29 @@ class _MealPlanPageState extends State<MealPlanPage> {
   }
 
   void _jumpToCurrentPeriod() => setState(() => _focusedDay = DateTime.now());
+
+  /// How many days in the currently-focused week don't have a dinner yet -
+  /// drives whether the "Fill week" button is enabled.
+  int get _emptyDaysThisWeek =>
+      CalendarMath.weekDays(_focusedDay).where((day) => widget.scheduleController.dinnerOn(day) == null).length;
+
+  void _fillWeek() {
+    final assignments = BatchPlanner.fillWeek(
+      weekAnchor: _focusedDay,
+      mealNames: [for (final meal in widget.mealListController.meals) meal.name],
+      dinnerOn: widget.scheduleController.dinnerOn,
+    );
+    for (final entry in assignments.entries) {
+      // Carry over the meal's own serving size instead of the generic default.
+      final meal = widget.mealListController.findByName(entry.value.title);
+      final dinner = meal == null ? entry.value : entry.value.copyWith(servings: meal.servings);
+      widget.scheduleController.setDinner(entry.key, dinner);
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(tr(context, 'mealPlan.weekFilled', {'count': '${assignments.length}'}))));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +197,17 @@ class _MealPlanPageState extends State<MealPlanPage> {
                   child: Text(_mode == PlanViewMode.weekly ? tr(context, 'mealPlan.thisWeek') : tr(context, 'mealPlan.thisMonth')),
                 ),
               ),
+            if (_mode == PlanViewMode.weekly) ...[
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton.icon(
+                  key: const Key('fill-week-button'),
+                  onPressed: widget.mealListController.meals.isEmpty || _emptyDaysThisWeek == 0 ? null : _fillWeek,
+                  icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+                  label: Text(tr(context, 'mealPlan.fillWeek')),
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             if (_mode == PlanViewMode.weekly) _buildWeekly(today) else _buildMonthly(today),
             const SizedBox(height: 12),
@@ -194,9 +230,14 @@ class _MealPlanPageState extends State<MealPlanPage> {
             day: day,
             dinner: widget.scheduleController.dinnerOn(day),
             isToday: CalendarMath.isSameDay(day, today),
+            mealListController: widget.mealListController,
             onAddMeal: () => _pickDinnerOfType(day, DinnerType.homeCooked),
             onAddEatingOut: () => _pickDinnerOfType(day, DinnerType.eatingOut),
             onClear: () => widget.scheduleController.clearDinner(day),
+            onChangeServings: (servings) {
+              final dinner = widget.scheduleController.dinnerOn(day);
+              if (dinner != null) widget.scheduleController.setDinner(day, dinner.copyWith(servings: servings));
+            },
             onDropDinner: (drag) => widget.scheduleController.moveDinner(drag.day, day),
           ),
           const SizedBox(height: 12),

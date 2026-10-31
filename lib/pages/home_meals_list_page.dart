@@ -6,6 +6,7 @@ import '../l10n/app_locale.dart';
 import '../models/meal.dart';
 import '../models/scheduled_dinner.dart';
 import '../theme/app_theme.dart';
+import 'cooking_mode_page.dart';
 import '../widgets/common/count_badge.dart';
 import '../widgets/common/entry_input_row.dart';
 import '../widgets/common/panel_header.dart';
@@ -51,19 +52,24 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
     }
   }
 
+  void _startCooking(Meal meal) {
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (context) => CookingModePage(meal: meal)));
+  }
+
   Future<void> _editMeal(Meal meal) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (context) => MealEditSheet(
         meal: meal,
-        onSave: ({required ingredients, required instructions, cookTimeMinutes, required tags}) {
+        onSave: ({required ingredients, required instructions, cookTimeMinutes, required tags, required servings}) {
           widget.controller.updateMeal(
             meal,
             ingredients: ingredients,
             instructions: instructions,
             cookTimeMinutes: cookTimeMinutes,
             tags: tags,
+            servings: servings,
           );
         },
       ),
@@ -115,6 +121,7 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
                       onToggleFavorite: () => widget.controller.toggleFavorite(meal),
                       onRemove: () => widget.controller.remove(meal),
                       onTap: () => _editMeal(meal),
+                      onStartCooking: () => _startCooking(meal),
                       scheduleAction: AddToScheduleButton(
                         key: Key('add-to-schedule-${meal.name}'),
                         title: meal.name,
@@ -134,6 +141,7 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
                   onToggleFavorite: () => widget.controller.toggleFavorite(meal),
                   onRemove: () => widget.controller.remove(meal),
                   onTap: () => _editMeal(meal),
+                  onStartCooking: () => _startCooking(meal),
                   scheduleAction: AddToScheduleButton(
                     key: Key('add-to-schedule-${meal.name}'),
                     title: meal.name,

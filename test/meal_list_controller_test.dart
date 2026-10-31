@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dishdash/controllers/meal_list_controller.dart';
+import 'package:dishdash/models/ingredient.dart';
 import 'package:dishdash/models/meal.dart';
 
 void main() {
@@ -44,16 +45,18 @@ void main() {
 
       controller.updateMeal(
         meal,
-        ingredients: ['Tortillas', 'Beef'],
+        ingredients: [Ingredient(quantity: 8, unit: '', name: 'Tortillas'), Ingredient(name: 'Beef')],
         instructions: 'Cook it.',
         cookTimeMinutes: 20,
         tags: {MealTag.pantryFriendly},
+        servings: 6,
       );
 
-      expect(meal.ingredients, ['Tortillas', 'Beef']);
+      expect(meal.ingredients, [Ingredient(quantity: 8, unit: '', name: 'Tortillas'), Ingredient(name: 'Beef')]);
       expect(meal.instructions, 'Cook it.');
       expect(meal.cookTimeMinutes, 20);
       expect(meal.tags, {MealTag.pantryFriendly});
+      expect(meal.servings, 6);
     });
 
     test('sorting by name and cook time leaves the custom order untouched underneath', () {

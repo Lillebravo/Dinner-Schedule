@@ -1,54 +1,87 @@
 import 'package:flutter/material.dart';
 
+import '../../models/ingredient.dart';
 import '../../models/meal.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/quantity_format.dart';
 import '../common/primary_button.dart';
 
-/// A bottom sheet for editing a meal's cook time, ingredients, and instructions.
+/// A bottom sheet for editing a meal's cook time, servings, ingredients
+/// (quantity + unit + name), and instructions.
 class MealEditSheet extends StatefulWidget {
   const MealEditSheet({super.key, required this.meal, required this.onSave});
 
   final Meal meal;
   final void Function({
-    required List<String> ingredients,
+    required List<Ingredient> ingredients,
     required String instructions,
     int? cookTimeMinutes,
     required Set<MealTag> tags,
+    required int servings,
   }) onSave;
 
   @override
   State<MealEditSheet> createState() => _MealEditSheetState();
 }
 
+/// One ingredient row's text controllers, split so the quantity can be scaled
+/// independently of the unit and name elsewhere in the app.
+class _IngredientRow {
+  _IngredientRow({double? quantity, String unit = '', String name = ''})
+      : quantity = TextEditingController(text: quantity == null ? '' : _trimTrailingZero(quantity)),
+        unit = TextEditingController(text: unit),
+        name = TextEditingController(text: name);
+
+  final TextEditingController quantity;
+  final TextEditingController unit;
+  final TextEditingController name;
+
+  static String _trimTrailingZero(double value) {
+    final text = value.toString();
+    return text.endsWith('.0') ? text.substring(0, text.length - 2) : text;
+  }
+
+  void dispose() {
+    quantity.dispose();
+    unit.dispose();
+    name.dispose();
+  }
+}
+
 class _MealEditSheetState extends State<MealEditSheet> {
-  late final List<TextEditingController> _ingredientControllers;
+  late final List<_IngredientRow> _ingredientRows;
   late final TextEditingController _instructionsController;
   late final TextEditingController _cookTimeController;
+  late final TextEditingController _servingsController;
   late Set<MealTag> _selectedTags;
 
   @override
   void initState() {
     super.initState();
-    final ingredients = widget.meal.ingredients.isEmpty ? [''] : widget.meal.ingredients;
-    _ingredientControllers = [for (final ingredient in ingredients) TextEditingController(text: ingredient)];
+    final ingredients = widget.meal.ingredients;
+    _ingredientRows = ingredients.isEmpty
+        ? [_IngredientRow()]
+        : [for (final ingredient in ingredients) _IngredientRow(quantity: ingredient.quantity, unit: ingredient.unit, name: ingredient.name)];
     _instructionsController = TextEditingController(text: widget.meal.instructions);
     _cookTimeController = TextEditingController(text: widget.meal.cookTimeMinutes?.toString() ?? '');
+    _servingsController = TextEditingController(text: '${widget.meal.servings}');
     _selectedTags = Set.of(widget.meal.tags);
   }
 
   @override
   void dispose() {
-    for (final controller in _ingredientControllers) {
-      controller.dispose();
+    for (final row in _ingredientRows) {
+      row.dispose();
     }
     _instructionsController.dispose();
     _cookTimeController.dispose();
+    _servingsController.dispose();
     super.dispose();
   }
 
-  void _addIngredientField() => setState(() => _ingredientControllers.add(TextEditingController()));
+  void _addIngredientField() => setState(() => _ingredientRows.add(_IngredientRow()));
 
-  void _removeIngredientField(int index) => setState(() => _ingredientControllers.removeAt(index).dispose());
+  void _removeIngredientField(int index) => setState(() => _ingredientRows.removeAt(index).dispose());
 
   void _toggleTag(MealTag tag) => setState(() {
         if (!_selectedTags.remove(tag)) _selectedTags.add(tag);
@@ -56,14 +89,21 @@ class _MealEditSheetState extends State<MealEditSheet> {
 
   void _save() {
     final ingredients = [
-      for (final controller in _ingredientControllers)
-        if (controller.text.trim().isNotEmpty) controller.text.trim(),
+      for (final row in _ingredientRows)
+        if (row.name.text.trim().isNotEmpty)
+          Ingredient(
+            quantity: QuantityFormat.parse(row.quantity.text),
+            unit: row.unit.text.trim(),
+            name: row.name.text.trim(),
+          ),
     ];
+    final servings = int.tryParse(_servingsController.text.trim()) ?? Meal.defaultServings;
     widget.onSave(
       ingredients: ingredients,
       instructions: _instructionsController.text.trim(),
       cookTimeMinutes: int.tryParse(_cookTimeController.text.trim()),
       tags: _selectedTags,
+      servings: servings < 1 ? 1 : servings,
     );
     Navigator.of(context).pop();
   }
@@ -80,11 +120,27 @@ class _MealEditSheetState extends State<MealEditSheet> {
           children: [
             Text(widget.meal.name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: ink)),
             const SizedBox(height: 16),
-            TextField(
-              key: const Key('cook-time-input'),
-              controller: _cookTimeController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Time to cook (minutes)', border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    key: const Key('cook-time-input'),
+                    controller: _cookTimeController,
+                    keyboardType: TextInputType.number,
+                    decoration:
+                        const InputDecoration(labelText: 'Time to cook (minutes)', border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    key: const Key('servings-input'),
+                    controller: _servingsController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Servings', border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Text('Tags', style: TextStyle(fontWeight: FontWeight.w800, color: ink)),
@@ -104,17 +160,44 @@ class _MealEditSheetState extends State<MealEditSheet> {
             ),
             const SizedBox(height: 16),
             Text('Ingredients', style: TextStyle(fontWeight: FontWeight.w800, color: ink)),
+            const SizedBox(height: 4),
+            Text(
+              'Quantities scale with servings in cooking mode. Enter a decimal (0.5) or a fraction (1/2) - leave the amount blank for things like "salt to taste".',
+              style: TextStyle(color: AppColors.of(context).muted, fontSize: 12),
+            ),
             const SizedBox(height: 8),
-            for (var i = 0; i < _ingredientControllers.length; i++)
+            for (var i = 0; i < _ingredientRows.length; i++)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   children: [
+                    SizedBox(
+                      width: 64,
+                      child: TextField(
+                        key: Key('ingredient-quantity-$i'),
+                        controller: _ingredientRows[i].quantity,
+                        keyboardType: TextInputType.text,
+                        decoration:
+                            const InputDecoration(isDense: true, hintText: '1 or 1/2', border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 72,
+                      child: TextField(
+                        key: Key('ingredient-unit-$i'),
+                        controller: _ingredientRows[i].unit,
+                        decoration:
+                            const InputDecoration(isDense: true, hintText: 'Unit', border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
                         key: Key('ingredient-input-$i'),
-                        controller: _ingredientControllers[i],
-                        decoration: const InputDecoration(isDense: true, border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
+                        controller: _ingredientRows[i].name,
+                        decoration:
+                            const InputDecoration(isDense: true, hintText: 'Ingredient', border: OutlineInputBorder(borderRadius: BorderRadius.zero)),
                       ),
                     ),
                     IconButton(icon: const Icon(Icons.remove_circle_outline), onPressed: () => _removeIngredientField(i)),

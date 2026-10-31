@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/ingredient.dart';
 import '../models/meal.dart';
 
 /// The available ways [MealListController.meals] can be ordered.
@@ -178,15 +179,17 @@ class MealListController extends ChangeNotifier {
   /// Replaces [meal]'s recipe details.
   void updateMeal(
     Meal meal, {
-    required List<String> ingredients,
+    required List<Ingredient> ingredients,
     required String instructions,
     int? cookTimeMinutes,
     required Set<MealTag> tags,
+    int servings = Meal.defaultServings,
   }) {
     meal.ingredients = ingredients;
     meal.instructions = instructions;
     meal.cookTimeMinutes = cookTimeMinutes;
     meal.tags = tags;
+    meal.servings = servings < 1 ? 1 : servings;
     notifyListeners();
   }
 

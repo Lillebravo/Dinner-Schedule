@@ -28,6 +28,16 @@ Future<void> _goTo(WidgetTester tester, String navKey) async {
   await tester.pumpAndSettle();
 }
 
+/// Picks [name] in an already-open [DinnerPickerSheet]'s home-cooked tab and
+/// confirms the servings step that follows, accepting whatever serving count
+/// is defaulted in.
+Future<void> _pickHomeCookedMeal(WidgetTester tester, String name) async {
+  await tester.tap(find.byKey(Key('dinner-picker-option-$name')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('dinner-picker-confirm')));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('opens on the home cooking wheel', (tester) async {
     _useDesktopViewport(tester);
@@ -173,6 +183,7 @@ void main() {
       await tester.tap(inTab(find.text('Veggie Curry')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('tag-vegetarian')));
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
       await tester.tap(find.byKey(const Key('save-meal-button')));
       await tester.pumpAndSettle();
 
@@ -207,16 +218,135 @@ void main() {
       await tester.pumpWidget(const DishDashApp());
       await _goTo(tester, 'nav-home-list');
 
-      await tester.tap(inTab(find.text('Tacos al Pastor')));
+      // Use a freshly-added meal (rather than one of the pre-filled defaults)
+      // so it starts with a single blank ingredient row.
+      await tester.enterText(inTab(find.byKey(const Key('food-input'))), 'Fish Tacos');
+      await tester.tap(inTab(find.byKey(const Key('add-food-button'))));
+      await tester.pump();
+
+      await tester.tap(inTab(find.text('Fish Tacos')));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byKey(const Key('cook-time-input')), '25');
       await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Pork');
       await tester.enterText(find.byKey(const Key('instructions-input')), 'Marinate, then grill.');
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
       await tester.tap(find.byKey(const Key('save-meal-button')));
       await tester.pumpAndSettle();
 
       expect(inTab(find.text('25 min · 1 ingredients')), findsOneWidget);
+    });
+
+    testWidgets('cooking mode button is disabled until the meal has instructions', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      // Use a freshly-added meal (rather than one of the pre-filled defaults)
+      // so it starts with no instructions.
+      await tester.enterText(inTab(find.byKey(const Key('food-input'))), 'Fish Tacos');
+      await tester.tap(inTab(find.byKey(const Key('add-food-button'))));
+      await tester.pump();
+
+      final cookingModeButton = inTab(find.byKey(const Key('cooking-mode-Fish Tacos')));
+      expect(tester.widget<IconButton>(cookingModeButton).onPressed, isNull);
+    });
+
+    testWidgets('starting cooking mode steps through instructions one at a time', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(inTab(find.text('Tacos al Pastor')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('instructions-input')), 'Marinate the pork.\nGrill until charred.\nAssemble the tacos.');
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.byKey(const Key('cooking-mode-Tacos al Pastor'))));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Step 1 of 3'), findsOneWidget);
+      expect(find.text('Marinate the pork.'), findsOneWidget);
+      expect(tester.widget<OutlinedButton>(find.byKey(const Key('cooking-mode-previous-button'))).onPressed, isNull);
+
+      await tester.tap(find.byKey(const Key('cooking-mode-next-button')));
+      await tester.pump();
+      expect(find.text('Step 2 of 3'), findsOneWidget);
+      expect(find.text('Grill until charred.'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('cooking-mode-next-button')));
+      await tester.pump();
+      expect(find.text('Step 3 of 3'), findsOneWidget);
+      expect(find.text('Finish'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('cooking-mode-previous-button')));
+      await tester.pump();
+      expect(find.text('Step 2 of 3'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('cooking-mode-next-button')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('cooking-mode-next-button')));
+      await tester.pumpAndSettle();
+
+      // Finishing pops back to the meals list.
+      expect(inTab(find.text('Tacos al Pastor')), findsOneWidget);
+    });
+
+    testWidgets('cooking mode scales ingredient quantities live with the servings stepper', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(inTab(find.text('Tacos al Pastor')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('servings-input')), '2');
+      await tester.enterText(find.byKey(const Key('ingredient-quantity-0')), '2');
+      await tester.enterText(find.byKey(const Key('ingredient-unit-0')), 'cups');
+      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Salsa');
+      await tester.enterText(find.byKey(const Key('instructions-input')), 'Serve warm.');
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.byKey(const Key('cooking-mode-Tacos al Pastor'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('cooking-mode-ingredients-toggle')));
+      await tester.pump();
+
+      expect(find.textContaining('2 cups Salsa'), findsOneWidget);
+
+      // Bump servings from 2 to 4 (double): the ingredient amount should double too.
+      await tester.tap(find.byKey(const Key('cooking-mode-servings-increment')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('cooking-mode-servings-increment')));
+      await tester.pump();
+
+      expect(find.textContaining('4 cups Salsa'), findsOneWidget);
+    });
+
+    testWidgets('a fraction quantity in grams displays tight against the unit, not as a fraction', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(inTab(find.text('Tacos al Pastor')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('ingredient-quantity-0')), '1/2');
+      await tester.enterText(find.byKey(const Key('ingredient-unit-0')), 'kg');
+      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Beef');
+      await tester.enterText(find.byKey(const Key('instructions-input')), 'Serve warm.');
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.byKey(const Key('cooking-mode-Tacos al Pastor'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('cooking-mode-ingredients-toggle')));
+      await tester.pump();
+
+      expect(find.textContaining('0.5kg Beef'), findsOneWidget);
     });
 
     testWidgets('disables removing below the two-meal minimum', (tester) async {
@@ -260,23 +390,31 @@ void main() {
       await _goTo(tester, 'nav-home-list');
       await tester.tap(find.text('Tacos al Pastor'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Tortillas');
+      // Clear out the pre-filled quantity/unit too, so this ingredient shows
+      // up as a plain "Salsa Verde" rather than carrying over "600 g". Avoid
+      // "Tortillas" specifically since Tacos al Pastor already has one.
+      await tester.enterText(find.byKey(const Key('ingredient-quantity-0')), '');
+      await tester.enterText(find.byKey(const Key('ingredient-unit-0')), '');
+      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Salsa Verde');
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
       await tester.tap(find.byKey(const Key('save-meal-button')));
       await tester.pumpAndSettle();
 
       await _goTo(tester, 'nav-meal-plan');
       await tester.tap(find.textContaining('Add meal').first);
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('dinner-picker-option-Tacos al Pastor')));
-      await tester.pumpAndSettle();
+      await _pickHomeCookedMeal(tester, 'Tacos al Pastor');
 
       await _goTo(tester, 'nav-shopping-list');
-      expect(inTab(find.text('Tortillas')), findsOneWidget);
-      expect(inTab(find.textContaining('Tacos al Pastor')), findsOneWidget);
+      expect(inTab(find.text('Salsa Verde')), findsOneWidget);
+      expect(
+        inTab(find.descendant(of: find.byKey(const Key('shopping-item-salsa verde')), matching: find.textContaining('Tacos al Pastor'))),
+        findsOneWidget,
+      );
 
-      await tester.tap(inTab(find.byKey(const Key('shopping-item-tortillas'))));
+      await tester.tap(inTab(find.byKey(const Key('shopping-item-salsa verde'))));
       await tester.pump();
-      final checkbox = tester.widget<CheckboxListTile>(inTab(find.byKey(const Key('shopping-item-tortillas'))));
+      final checkbox = tester.widget<CheckboxListTile>(inTab(find.byKey(const Key('shopping-item-salsa verde'))));
       expect(checkbox.value, isTrue);
     });
 
@@ -287,22 +425,24 @@ void main() {
       await _goTo(tester, 'nav-home-list');
       await tester.tap(find.text('Tacos al Pastor'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Tortillas');
+      await tester.enterText(find.byKey(const Key('ingredient-quantity-0')), '');
+      await tester.enterText(find.byKey(const Key('ingredient-unit-0')), '');
+      await tester.enterText(find.byKey(const Key('ingredient-input-0')), 'Salsa Verde');
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
       await tester.tap(find.byKey(const Key('save-meal-button')));
       await tester.pumpAndSettle();
 
       await _goTo(tester, 'nav-meal-plan');
       await tester.tap(find.textContaining('Add meal').first);
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('dinner-picker-option-Tacos al Pastor')));
-      await tester.pumpAndSettle();
+      await _pickHomeCookedMeal(tester, 'Tacos al Pastor');
 
       await _goTo(tester, 'nav-shopping-list');
-      expect(inTab(find.text('Tortillas')), findsOneWidget);
+      expect(inTab(find.text('Salsa Verde')), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('period-next')));
       await tester.pumpAndSettle();
-      expect(inTab(find.text('Tortillas')), findsNothing);
+      expect(inTab(find.text('Salsa Verde')), findsNothing);
       expect(inTab(find.textContaining('No home-cooked meals scheduled')), findsOneWidget);
     });
 
@@ -362,6 +502,60 @@ void main() {
       expect(inTab(find.text('Apples')), findsNothing);
     });
 
+    testWidgets('marking an item as already have moves it into the "Already have" section', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-shopping-list');
+
+      await tester.enterText(inTab(find.byKey(const Key('food-input'))), 'Napkins');
+      await tester.tap(inTab(find.byKey(const Key('add-food-button'))));
+      await tester.pump();
+
+      expect(inTab(find.byKey(const Key('already-have-header'))), findsNothing);
+
+      await tester.tap(inTab(find.byKey(const Key('shopping-item-stash-manual-0'))));
+      await tester.pump();
+
+      expect(inTab(find.text('Already have (1)')), findsOneWidget);
+      expect(inTab(find.text('Napkins')), findsOneWidget);
+
+      // Un-marking moves it back out of the section.
+      await tester.tap(inTab(find.byKey(const Key('shopping-item-stash-manual-0'))));
+      await tester.pump();
+      expect(inTab(find.byKey(const Key('already-have-header'))), findsNothing);
+    });
+
+    testWidgets('grouping by aisle sorts items under aisle headers, correctable per item', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-shopping-list');
+
+      for (final name in ['Milk', 'Onion', 'Napkins']) {
+        await tester.enterText(inTab(find.byKey(const Key('food-input'))), name);
+        await tester.tap(inTab(find.byKey(const Key('add-food-button'))));
+        await tester.pump();
+      }
+
+      await tester.tap(inTab(find.byKey(const Key('group-by-aisle-filter'))));
+      await tester.pump();
+
+      expect(inTab(find.byKey(const Key('aisle-header-dairy'))), findsOneWidget);
+      expect(inTab(find.byKey(const Key('aisle-header-produce'))), findsOneWidget);
+      expect(inTab(find.byKey(const Key('aisle-header-other'))), findsOneWidget);
+      expect(inTab(find.text('Milk')), findsOneWidget);
+      expect(inTab(find.text('Onion')), findsOneWidget);
+      expect(inTab(find.text('Napkins')), findsOneWidget);
+
+      // Correct "Napkins" (guessed as "Other") to "Produce" and confirm "Other" disappears.
+      await tester.tap(inTab(find.byKey(const Key('shopping-item-aisle-manual-2'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('aisle-option-manual-2-produce')));
+      await tester.pumpAndSettle();
+
+      expect(inTab(find.byKey(const Key('aisle-header-other'))), findsNothing);
+      expect(inTab(find.byKey(const Key('aisle-header-produce'))), findsOneWidget);
+    });
+
     testWidgets('done shopping clears checked items off the list', (tester) async {
       _useDesktopViewport(tester);
       await tester.pumpWidget(const DishDashApp());
@@ -401,10 +595,105 @@ void main() {
 
       await tester.tap(inTab(find.textContaining('Add meal')).first);
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('dinner-picker-option-Tacos al Pastor')));
-      await tester.pumpAndSettle();
+      await _pickHomeCookedMeal(tester, 'Tacos al Pastor');
 
       expect(inTab(find.text('Tacos al Pastor')), findsOneWidget);
+    });
+
+    testWidgets('picking a home-cooked meal defaults and clearly shows its servings, editable from the day card', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-meal-plan');
+
+      await tester.tap(inTab(find.textContaining('Add meal')).first);
+      await tester.pumpAndSettle();
+      await _pickHomeCookedMeal(tester, 'Tacos al Pastor');
+
+      // Defaults to the recipe's own serving size (4), shown clearly on the day card.
+      expect(inTab(find.textContaining('4 servings')), findsOneWidget);
+
+      // Editing it from the day card updates the label.
+      await tester.tap(inTab(find.textContaining('4 servings')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('servings-stepper-increment')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('servings-stepper-increment')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('servings-editor-save')));
+      await tester.pumpAndSettle();
+
+      expect(inTab(find.textContaining('6 servings')), findsOneWidget);
+    });
+
+    testWidgets('can start cooking directly from a day scheduled with a home-cooked meal', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-meal-plan');
+
+      await tester.tap(inTab(find.textContaining('Add meal')).first);
+      await tester.pumpAndSettle();
+      await _pickHomeCookedMeal(tester, 'Tacos al Pastor');
+
+      await tester.tap(inTab(find.byTooltip('Start cooking')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tacos al Pastor'), findsOneWidget);
+      expect(find.byKey(const Key('cooking-mode-close-button')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('cooking-mode-close-button')));
+      await tester.pumpAndSettle();
+      expect(inTab(find.text('Tacos al Pastor')), findsOneWidget);
+    });
+
+    testWidgets("increasing a scheduled day's servings scales its ingredients in the shopping list", (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-meal-plan');
+
+      await tester.tap(inTab(find.textContaining('Add meal')).first);
+      await tester.pumpAndSettle();
+      await _pickHomeCookedMeal(tester, 'Spaghetti Bolognese');
+
+      // Double the planned servings for this night, from 4 to 8.
+      await tester.tap(inTab(find.textContaining('4 servings')));
+      await tester.pumpAndSettle();
+      for (var i = 0; i < 4; i++) {
+        await tester.tap(find.byKey(const Key('servings-stepper-increment')));
+        await tester.pump();
+      }
+      await tester.tap(find.byKey(const Key('servings-editor-save')));
+      await tester.pumpAndSettle();
+
+      await _goTo(tester, 'nav-shopping-list');
+      expect(
+        find.descendant(of: find.byType(ShoppingListPage), matching: find.textContaining('1000g ground beef')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('fill week assigns meals to every empty day without touching existing ones', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-meal-plan');
+
+      // Manually schedule one day first.
+      await tester.tap(inTab(find.textContaining('Add meal')).first);
+      await tester.pumpAndSettle();
+      await _pickHomeCookedMeal(tester, 'Tacos al Pastor');
+      expect(inTab(find.textContaining('Add meal')), findsNWidgets(6));
+
+      await tester.tap(inTab(find.byKey(const Key('fill-week-button'))));
+      await tester.pumpAndSettle();
+
+      // Every day now has something scheduled, and the manually-set day is untouched
+      // (other days may also land on "Tacos al Pastor" by chance from the shuffle,
+      // since there are only 4 meals and 6 empty days to fill).
+      expect(inTab(find.textContaining('Add meal')), findsNothing);
+      expect(inTab(find.text('Tacos al Pastor')), findsAtLeastNWidgets(1));
+      expect(find.textContaining('Filled 6 empty day'), findsOneWidget);
+
+      // Nothing left to fill now, so the button disables itself.
+      expect(tester.widget<TextButton>(inTab(find.byKey(const Key('fill-week-button')))).onPressed, isNull);
     });
 
     testWidgets('switching to monthly shows a calendar grid', (tester) async {
