@@ -21,6 +21,8 @@ const Map<String, Map<String, String>> kTranslations = {
     'filter.glutenFree': 'Gluten-Free',
     'filter.comfortFood': 'Comfort Food',
     'filter.pantryFriendly': 'Pantry Friendly',
+    'tags.expand': 'Show all tags',
+    'tags.collapse': 'Collapse tags',
 
     'header.eyebrow': 'DINNER DECISION MAKER',
     'header.themeTooltipLight': 'Switch to dark mode',
@@ -61,6 +63,8 @@ const Map<String, Map<String, String>> kTranslations = {
     'schedule.addMealButton': 'Add meal',
     'schedule.eatOutButton': 'Eat out',
     'schedule.clearDinner': 'Clear dinner',
+
+    'meal.addCustomTagHint': 'Add a custom tag',
 
     'homeMeals.eyebrow': 'HOME COOKING',
     'homeMeals.title': 'Your meals',
@@ -143,6 +147,8 @@ const Map<String, Map<String, String>> kTranslations = {
     'filter.glutenFree': 'Glutenfritt',
     'filter.comfortFood': 'Tröstmat',
     'filter.pantryFriendly': 'Skafferivänligt',
+    'tags.expand': 'Visa alla taggar',
+    'tags.collapse': 'Fäll ihop taggar',
 
     'header.eyebrow': 'MIDDAGENS BESLUTSFATTARE',
     'header.themeTooltipLight': 'Byt till mörkt läge',
@@ -183,6 +189,8 @@ const Map<String, Map<String, String>> kTranslations = {
     'schedule.addMealButton': 'Lägg till måltid',
     'schedule.eatOutButton': 'Ät ute',
     'schedule.clearDinner': 'Rensa middag',
+
+    'meal.addCustomTagHint': 'Lägg till en egen tagg',
 
     'homeMeals.eyebrow': 'HEMLAGAT',
     'homeMeals.title': 'Dina måltider',

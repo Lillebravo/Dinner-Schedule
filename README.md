@@ -26,6 +26,7 @@
 * **Step-by-Step Instructions:** Clean, distraction-free cooking directions.
 * **Dynamic Ingredients:** Scalable serving sizes with exact measurements.
 * **Tagging & Metadata:** Filter dishes by prep time, difficulty, cuisine, and dietary requirements.
+* **Expandable Tags:** Expand or collapse built-in and custom tags in meal editing and filtering. Selected tags remain visible when collapsed; deselecting a custom tag removes it from the meal, not from your reusable tag collection.
 
 ### 🛒 Consolidated Grocery List
 * **Automated Aggregation:** Combines overlapping ingredients across the entire week (e.g., 2 onions + 3 onions = 5 onions).

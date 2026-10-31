@@ -22,10 +22,12 @@ class Meal {
     this.cookTimeMinutes,
     this.isFavorite = false,
     Set<MealTag>? tags,
+    Set<String>? customTags,
     int servings = defaultServings,
   })  : name = name.trim(),
         ingredients = ingredients ?? [],
         tags = tags ?? {},
+        customTags = customTags ?? {},
         servings = servings < 1 ? 1 : servings;
 
   /// The serving count new meals start at, and the denominator [ingredients]'
@@ -38,6 +40,13 @@ class Meal {
   int? cookTimeMinutes;
   bool isFavorite;
   Set<MealTag> tags;
+
+  /// Free-text tags the user made up themselves (e.g. "Kid-Friendly"), on top
+  /// of the built-in [MealTag]s - also usable to filter the meals list and
+  /// wheel. The vocabulary of tags ever created is tracked separately by
+  /// [MealListController.knownCustomTags] so it survives even after being
+  /// removed from every meal.
+  Set<String> customTags;
 
   /// How many servings [ingredients]' quantities are written for - the
   /// denominator used to scale them up/down in cooking mode.

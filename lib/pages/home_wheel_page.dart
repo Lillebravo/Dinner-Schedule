@@ -52,7 +52,7 @@ class _HomeWheelPageState extends State<HomeWheelPage> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final meals = widget.controller.meals;
-    final emptyHint = widget.controller.activeFilters.isNotEmpty
+    final emptyHint = widget.controller.hasActiveFilters
         ? tr(context, 'homeWheel.emptyHintFiltered')
         : tr(context, 'homeWheel.emptyHint');
     return SingleChildScrollView(

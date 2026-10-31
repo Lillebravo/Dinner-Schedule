@@ -62,13 +62,16 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
       isScrollControlled: true,
       builder: (context) => MealEditSheet(
         meal: meal,
-        onSave: ({required ingredients, required instructions, cookTimeMinutes, required tags, required servings}) {
+        knownCustomTags: widget.controller.knownCustomTags,
+        onCustomTagAdded: widget.controller.addCustomTag,
+        onSave: ({required ingredients, required instructions, cookTimeMinutes, required tags, required customTags, required servings}) {
           widget.controller.updateMeal(
             meal,
             ingredients: ingredients,
             instructions: instructions,
             cookTimeMinutes: cookTimeMinutes,
             tags: tags,
+            customTags: customTags,
             servings: servings,
           );
         },
@@ -80,7 +83,7 @@ class _HomeMealsListPageState extends State<HomeMealsListPage> {
   Widget build(BuildContext context) {
     final meals = widget.controller.meals;
     final canRemove = !widget.controller.isAtMinimum;
-    final reorderable = widget.controller.sortOption == MealSortOption.custom && widget.controller.activeFilters.isEmpty;
+    final reorderable = widget.controller.sortOption == MealSortOption.custom && !widget.controller.hasActiveFilters;
     final colors = AppColors.of(context);
 
     return SingleChildScrollView(

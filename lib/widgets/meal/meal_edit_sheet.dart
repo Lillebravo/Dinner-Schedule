@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_locale.dart';
 import '../../models/ingredient.dart';
 import '../../models/meal.dart';
 import '../../theme/app_theme.dart';
@@ -9,14 +10,27 @@ import '../common/primary_button.dart';
 /// A bottom sheet for editing a meal's cook time, servings, ingredients
 /// (quantity + unit + name), and instructions.
 class MealEditSheet extends StatefulWidget {
-  const MealEditSheet({super.key, required this.meal, required this.onSave});
+  const MealEditSheet({
+    super.key,
+    required this.meal,
+    required this.knownCustomTags,
+    required this.onCustomTagAdded,
+    required this.onSave,
+  });
 
   final Meal meal;
+
+  /// Every custom tag ever created across all meals, offered here as quick-add
+  /// suggestions (see [MealListController.knownCustomTags]).
+  final Set<String> knownCustomTags;
+  final ValueChanged<String> onCustomTagAdded;
+
   final void Function({
     required List<Ingredient> ingredients,
     required String instructions,
     int? cookTimeMinutes,
     required Set<MealTag> tags,
+    required Set<String> customTags,
     required int servings,
   }) onSave;
 
@@ -57,7 +71,11 @@ class _MealEditSheetState extends State<MealEditSheet> {
   late final TextEditingController _instructionsController;
   late final TextEditingController _cookTimeController;
   late final TextEditingController _servingsController;
+  final _customTagController = TextEditingController();
   late Set<MealTag> _selectedTags;
+  late Set<String> _selectedCustomTags;
+  late final Set<String> _availableCustomTags;
+  bool _tagsExpanded = false;
 
   @override
   void initState() {
@@ -70,6 +88,8 @@ class _MealEditSheetState extends State<MealEditSheet> {
     _cookTimeController = TextEditingController(text: widget.meal.cookTimeMinutes?.toString() ?? '');
     _servingsController = TextEditingController(text: '${widget.meal.servings}');
     _selectedTags = Set.of(widget.meal.tags);
+    _selectedCustomTags = Set.of(widget.meal.customTags);
+    _availableCustomTags = {...widget.knownCustomTags, ...widget.meal.customTags};
   }
 
   @override
@@ -80,6 +100,7 @@ class _MealEditSheetState extends State<MealEditSheet> {
     _instructionsController.dispose();
     _cookTimeController.dispose();
     _servingsController.dispose();
+    _customTagController.dispose();
     super.dispose();
   }
 
@@ -90,6 +111,59 @@ class _MealEditSheetState extends State<MealEditSheet> {
   void _toggleTag(MealTag tag) => setState(() {
         if (!_selectedTags.remove(tag)) _selectedTags.add(tag);
       });
+
+  void _addCustomTag([String? tag]) {
+    final newTag = (tag ?? _customTagController.text).trim();
+    if (newTag.isEmpty) return;
+    if (_selectedCustomTags.any((existing) => existing.toLowerCase() == newTag.toLowerCase())) return;
+    final knownTag = _availableCustomTags.firstWhere(
+      (existing) => existing.toLowerCase() == newTag.toLowerCase(),
+      orElse: () => newTag,
+    );
+    setState(() {
+      _availableCustomTags.add(knownTag);
+      _selectedCustomTags.add(knownTag);
+      _tagsExpanded = true;
+      _customTagController.clear();
+    });
+    widget.onCustomTagAdded(knownTag);
+  }
+
+  void _removeCustomTag(String tag) => setState(() => _selectedCustomTags.remove(tag));
+
+  List<String> _sortedTags(Iterable<String> tags) => tags.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
+  /// Collapsing keeps selected tags visible; expanding offers the full vocabulary.
+  List<Widget> _buildTagChips(BuildContext context) {
+    final selectedCustom = _sortedTags(_selectedCustomTags);
+    final unselectedCustom = _sortedTags(
+      _availableCustomTags.where((tag) => !_selectedCustomTags.any((selected) => selected.toLowerCase() == tag.toLowerCase())),
+    );
+
+    return [
+      for (final tag in MealTag.values.where((tag) => _tagsExpanded || _selectedTags.contains(tag)))
+        FilterChip(
+          key: Key('tag-${tag.name}'),
+          label: Text(tag.label),
+          selected: _selectedTags.contains(tag),
+          onSelected: (_) => _toggleTag(tag),
+        ),
+      for (final tag in selectedCustom)
+        FilterChip(
+          key: Key('custom-tag-chip-$tag'),
+          label: Text(tag),
+          selected: true,
+          onSelected: (_) => _removeCustomTag(tag),
+        ),
+      for (final tag in _tagsExpanded ? unselectedCustom : const <String>[])
+        FilterChip(
+          key: Key('custom-tag-suggestion-$tag'),
+          label: Text(tag),
+          selected: false,
+          onSelected: (_) => _addCustomTag(tag),
+        ),
+    ];
+  }
 
   void _save() {
     final ingredients = [
@@ -107,6 +181,7 @@ class _MealEditSheetState extends State<MealEditSheet> {
       instructions: _instructionsController.text.trim(),
       cookTimeMinutes: int.tryParse(_cookTimeController.text.trim()),
       tags: _selectedTags,
+      customTags: _selectedCustomTags,
       servings: servings < 1 ? 1 : servings,
     );
     Navigator.of(context).pop();
@@ -147,19 +222,31 @@ class _MealEditSheetState extends State<MealEditSheet> {
               ],
             ),
             const SizedBox(height: 16),
-            Text('Tags', style: TextStyle(fontWeight: FontWeight.w800, color: ink)),
+            TextButton.icon(
+              key: const Key('meal-tags-toggle'),
+              onPressed: () => setState(() => _tagsExpanded = !_tagsExpanded),
+              icon: Icon(_tagsExpanded ? Icons.expand_less : Icons.expand_more),
+              label: Text(tr(context, _tagsExpanded ? 'tags.collapse' : 'tags.expand')),
+            ),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            Wrap(spacing: 8, runSpacing: 8, children: _buildTagChips(context)),
+            const SizedBox(height: 8),
+            Row(
               children: [
-                for (final tag in MealTag.values)
-                  FilterChip(
-                    key: Key('tag-${tag.name}'),
-                    label: Text(tag.label),
-                    selected: _selectedTags.contains(tag),
-                    onSelected: (_) => _toggleTag(tag),
+                Expanded(
+                  child: TextField(
+                    key: const Key('custom-tag-input'),
+                    controller: _customTagController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: tr(context, 'meal.addCustomTagHint'),
+                      border: const OutlineInputBorder(borderRadius: BorderRadius.zero),
+                    ),
+                    onSubmitted: _addCustomTag,
                   ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(key: const Key('add-custom-tag-button'), icon: const Icon(Icons.add), onPressed: () => _addCustomTag()),
               ],
             ),
             const SizedBox(height: 16),

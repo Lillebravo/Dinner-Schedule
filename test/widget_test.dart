@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dishdash/controllers/food_list_controller.dart';
 import 'package:dishdash/controllers/meal_list_controller.dart';
@@ -39,6 +40,10 @@ Future<void> _pickHomeCookedMeal(WidgetTester tester, String name) async {
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('opens on the home cooking wheel', (tester) async {
     _useDesktopViewport(tester);
     await tester.pumpWidget(const DishDashApp());
@@ -182,12 +187,16 @@ void main() {
 
       await tester.tap(inTab(find.text('Veggie Curry')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('meal-tags-toggle')));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('tag-vegetarian')));
       await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
       await tester.tap(find.byKey(const Key('save-meal-button')));
       await tester.pumpAndSettle();
 
       await tester.tap(inTab(find.byKey(const Key('filter-menu-button'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('filter-tags-toggle')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('filter-vegetarian')));
       await tester.pumpAndSettle();
@@ -198,12 +207,218 @@ void main() {
       expect(inTab(find.text('Tacos al Pastor')), findsNothing);
     });
 
+    testWidgets('adding one custom tag to a meal makes it filterable after expanding tags', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(inTab(find.text('Veggie Curry')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('custom-tag-input')), 'Spicy');
+      await tester.tap(find.byKey(const Key('add-custom-tag-button')));
+      await tester.pump();
+      expect(find.byKey(const Key('custom-tag-chip-Spicy')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.byKey(const Key('filter-menu-button'))));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('filter-custom-Spicy')), findsNothing);
+      await tester.tap(find.byKey(const Key('filter-tags-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('filter-custom-Spicy')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('filter-custom-Spicy')));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(inTab(find.text('Veggie Curry')), findsOneWidget);
+      expect(inTab(find.text('Tacos al Pastor')), findsNothing);
+    });
+
+    testWidgets('all filters expand and collapse while keeping selected tags visible', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(inTab(find.text('Veggie Curry')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('custom-tag-input')), 'Spicy');
+      await tester.tap(find.byKey(const Key('add-custom-tag-button')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.text('Tacos al Pastor')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('custom-tag-input')), 'Quick Win');
+      await tester.tap(find.byKey(const Key('add-custom-tag-button')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.byKey(const Key('filter-menu-button'))));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('filter-tags-toggle')), findsOneWidget);
+      expect(find.byKey(const Key('filter-vegetarian')), findsNothing);
+      expect(find.byKey(const Key('filter-custom-Spicy')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('filter-tags-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('filter-vegetarian')), findsOneWidget);
+      expect(find.byKey(const Key('filter-custom-Spicy')), findsOneWidget);
+      expect(find.byKey(const Key('filter-custom-Quick Win')), findsOneWidget);
+
+      await tester.ensureVisible(find.byKey(const Key('filter-custom-Spicy')));
+      await tester.tap(find.byKey(const Key('filter-custom-Spicy')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('filter-tags-toggle')));
+      await tester.tap(find.byKey(const Key('filter-tags-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('filter-vegetarian')), findsNothing);
+      expect(find.byKey(const Key('filter-custom-Spicy')), findsOneWidget);
+      expect(find.byKey(const Key('filter-custom-Quick Win')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('filter-tags-toggle')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('filter-custom-Spicy')));
+      await tester.tap(find.byKey(const Key('filter-custom-Spicy')));
+      await tester.pumpAndSettle();
+      expect(tester.widget<CheckboxListTile>(find.byKey(const Key('filter-custom-Spicy'))).value, isFalse);
+    });
+
+    testWidgets('known custom tags not yet on a meal are offered as quick-add suggestions', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      // Create the tag on one meal first.
+      await tester.tap(inTab(find.text('Veggie Curry')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('custom-tag-input')), 'Spicy');
+      await tester.tap(find.byKey(const Key('add-custom-tag-button')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      // Editing a different meal should offer "Spicy" as a one-tap suggestion.
+      await tester.tap(inTab(find.text('Tacos al Pastor')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('meal-tags-toggle')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('custom-tag-suggestion-Spicy')));
+      await tester.pump();
+
+      expect(find.byKey(const Key('custom-tag-chip-Spicy')), findsOneWidget);
+    });
+
+    testWidgets('built-in and custom meal tags can repeatedly expand and collapse', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(inTab(find.text('Veggie Curry')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('custom-tag-input')), 'Spicy');
+      await tester.tap(find.byKey(const Key('add-custom-tag-button')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.text('Tacos al Pastor')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('custom-tag-input')), 'Quick Win');
+      await tester.tap(find.byKey(const Key('add-custom-tag-button')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.text('Chicken Stir-fry')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('meal-tags-toggle')), findsOneWidget);
+      expect(find.byKey(const Key('tag-vegetarian')), findsNothing);
+      expect(find.byKey(const Key('custom-tag-suggestion-Spicy')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('meal-tags-toggle')));
+      await tester.pump();
+      expect(find.byKey(const Key('tag-vegetarian')), findsOneWidget);
+      expect(find.byKey(const Key('custom-tag-suggestion-Spicy')), findsOneWidget);
+      expect(find.byKey(const Key('custom-tag-suggestion-Quick Win')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('tag-vegetarian')));
+      await tester.tap(find.byKey(const Key('custom-tag-suggestion-Spicy')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('meal-tags-toggle')));
+      await tester.pump();
+      expect(find.byKey(const Key('tag-vegetarian')), findsOneWidget);
+      expect(find.byKey(const Key('tag-vegan')), findsNothing);
+      expect(find.byKey(const Key('custom-tag-chip-Spicy')), findsOneWidget);
+      expect(find.byKey(const Key('custom-tag-suggestion-Quick Win')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('meal-tags-toggle')));
+      await tester.pump();
+      expect(find.byKey(const Key('tag-vegan')), findsOneWidget);
+      expect(find.byKey(const Key('custom-tag-suggestion-Quick Win')), findsOneWidget);
+    });
+
+    testWidgets('deselecting a new custom tag keeps it reusable after saving and reopening', (tester) async {
+      _useDesktopViewport(tester);
+      await tester.pumpWidget(const DishDashApp());
+      await _goTo(tester, 'nav-home-list');
+
+      await tester.tap(inTab(find.text('Veggie Curry')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('custom-tag-input')), '  Spicy  ');
+      await tester.tap(find.byKey(const Key('add-custom-tag-button')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('custom-tag-chip-Spicy')));
+      await tester.pump();
+      expect(find.byKey(const Key('custom-tag-chip-Spicy')), findsNothing);
+      expect(find.byKey(const Key('custom-tag-suggestion-Spicy')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('custom-tag-suggestion-Spicy')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('custom-tag-chip-Spicy')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      expect(SharedPreferences.getInstance().then((prefs) => prefs.getStringList('dishdash.customTags')), completion(contains('Spicy')));
+      await tester.tap(inTab(find.text('Veggie Curry')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('meal-tags-toggle')));
+      await tester.pump();
+      expect(find.byKey(const Key('custom-tag-chip-Spicy')), findsNothing);
+      expect(find.byKey(const Key('custom-tag-suggestion-Spicy')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('save-meal-button')));
+      await tester.tap(find.byKey(const Key('save-meal-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(inTab(find.byKey(const Key('filter-menu-button'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('filter-tags-toggle')));
+      await tester.pumpAndSettle();
+      expect(tester.widget<CheckboxListTile>(find.byKey(const Key('filter-custom-Spicy'))).value, isFalse);
+    });
+
     testWidgets('filtering down to nothing shows a helpful message', (tester) async {
       _useDesktopViewport(tester);
       await tester.pumpWidget(const DishDashApp());
       await _goTo(tester, 'nav-home-list');
 
       await tester.tap(inTab(find.byKey(const Key('filter-menu-button'))));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('filter-tags-toggle')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('filter-vegetarian')));
       await tester.pumpAndSettle();
@@ -930,4 +1145,3 @@ void main() {
     });
   });
 }
-

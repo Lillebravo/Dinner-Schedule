@@ -147,6 +147,12 @@ class _MainShellState extends State<MainShell> {
   int _selectedIndex = 2;
 
   @override
+  void initState() {
+    super.initState();
+    _mealListController.loadPersistedCustomTags();
+  }
+
+  @override
   void dispose() {
     _mealListController.dispose();
     _eatingOutController.dispose();
